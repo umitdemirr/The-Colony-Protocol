@@ -33,6 +33,7 @@ public class GlobalInfoCardUI : MonoBehaviour
     readonly Dictionary<string, GameObject> _bodyByKey = new Dictionary<string, GameObject>();
 
     GameObject _contextTarget;
+    PlacedBuilding _highlightedBuilding;
 
     /// <summary>
     /// Kartı açan dünya objesi (bina vb.); yok et butonu için.
@@ -77,12 +78,23 @@ public class GlobalInfoCardUI : MonoBehaviour
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             return;
 
+        // Bazı UI bileşenleri raycastTarget kapalıysa
+        // EventSystem bunu yakalamayabiliyor; bu durumda da panelin kendi alanına tıklanınca kapatmayalım.
+        var rootRt = rootPanel.GetComponent<RectTransform>();
+        if (rootRt != null)
+        {
+            Camera cam = Camera.main;
+            if (RectTransformUtility.RectangleContainsScreenPoint(
+                    rootRt, Input.mousePosition, cam))
+                return;
+        }
+
         Vector2 mousePos = Camera.main != null
             ? Camera.main.ScreenToWorldPoint(Input.mousePosition)
             : Vector2.zero;
-        RaycastHit2D hit = Physics2D.Raycast(mousePos, Vector2.zero);
-        if (hit.collider != null && hit.collider.GetComponentInParent<InfoCardInteractable>() != null)
+        if (WorldClickResolver.TryGetInfoCardInteractableAt(mousePos, out _))
             return;
+        RaycastHit2D hit = Physics2D.Raycast(mousePos, Vector2.zero);
         if (hit.collider != null && _keepOpenIfHit.Contains(hit.collider))
             return;
 
@@ -114,7 +126,9 @@ public class GlobalInfoCardUI : MonoBehaviour
         if (rootPanel == null || bodyContainer == null)
             return;
 
+        SetHighlightedBuilding(null);
         _contextTarget = contextTarget;
+        SetHighlightedBuilding(_contextTarget != null ? _contextTarget.GetComponentInParent<PlacedBuilding>() : null);
 
         if (headerIcon != null)
         {
@@ -139,6 +153,7 @@ public class GlobalInfoCardUI : MonoBehaviour
         {
             EnsureActiveInContainer(bodyToShow, bodyContainer);
             SetActiveRecursively(bodyToShow.transform, true);
+            BroadcastContext(bodyToShow, _contextTarget);
         }
 
         rootPanel.SetActive(true);
@@ -167,10 +182,44 @@ public class GlobalInfoCardUI : MonoBehaviour
 
     public void Hide()
     {
+        if (bodyContainer != null)
+        {
+            for (int i = 0; i < bodyContainer.childCount; i++)
+                BroadcastContext(bodyContainer.GetChild(i).gameObject, null);
+        }
+        SetHighlightedBuilding(null);
         _contextTarget = null;
         if (rootPanel != null)
             rootPanel.SetActive(false);
     }
 
     public bool IsOpen => rootPanel != null && rootPanel.activeSelf;
+
+    static void BroadcastContext(GameObject root, GameObject contextTarget)
+    {
+        if (root == null) return;
+        var receivers = root.GetComponentsInChildren<IInfoCardContextReceiver>(true);
+        for (int i = 0; i < receivers.Length; i++)
+            receivers[i].SetContextTarget(contextTarget);
+    }
+
+    void SetHighlightedBuilding(PlacedBuilding pb)
+    {
+        if (_highlightedBuilding == pb) return;
+
+        if (_highlightedBuilding != null)
+        {
+            var oldHighlight = _highlightedBuilding.GetComponent<BuildingSelectionHighlight>();
+            if (oldHighlight != null) oldHighlight.SetHighlighted(false);
+        }
+
+        _highlightedBuilding = pb;
+
+        if (_highlightedBuilding != null)
+        {
+            var newHighlight = _highlightedBuilding.GetComponent<BuildingSelectionHighlight>();
+            if (newHighlight == null) newHighlight = _highlightedBuilding.gameObject.AddComponent<BuildingSelectionHighlight>();
+            newHighlight.SetHighlighted(true);
+        }
+    }
 }

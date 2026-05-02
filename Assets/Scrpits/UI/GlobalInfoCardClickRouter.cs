@@ -20,11 +20,8 @@ public class GlobalInfoCardClickRouter : MonoBehaviour
             ? Camera.main.ScreenToWorldPoint(Input.mousePosition)
             : Vector2.zero;
 
-        RaycastHit2D hit = Physics2D.Raycast(mousePos, Vector2.zero);
-        if (hit.collider == null) return;
-
-        InfoCardInteractable interactable = hit.collider.GetComponentInParent<InfoCardInteractable>();
-        if (interactable == null) return;
+        if (!WorldClickResolver.TryGetInfoCardInteractableAt(mousePos, out InfoCardInteractable interactable))
+            return;
 
         GameObject body = card.ResolveBody(interactable.bodyContentKey);
         if (body == null) return;

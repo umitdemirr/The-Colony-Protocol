@@ -16,9 +16,14 @@ public class InfoCardPanelButton : MonoBehaviour
 
         if (destroyContextTarget && card.ContextTarget != null)
         {
-            GameObject t = card.ContextTarget;
-            SalvageUtility.DropSalvageAt(t, t.transform.position);
-            Destroy(t);
+            // ContextTarget çoğu zaman bir "UI/etkileşilebilir parça" olabiliyor.
+            // Grid/occupancy ve diğer panel-sistemleri için gerçek hedef `PlacedBuilding` root'udur.
+            GameObject ctx = card.ContextTarget;
+            PlacedBuilding placed = ctx != null ? ctx.GetComponentInParent<PlacedBuilding>() : null;
+            GameObject destroyTarget = placed != null ? placed.gameObject : ctx;
+
+            SalvageUtility.DropSalvageAt(destroyTarget, destroyTarget.transform.position);
+            Destroy(destroyTarget);
         }
 
         card.Hide();

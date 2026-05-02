@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// UI'daki "B" butonu ile BuildMode panelini aç/kapatır.
+/// UI'daki Build butonu ile BuildMode panelini aç/kapatır.
 /// Panel kapalıyken ghost önizleme görünmez (MouseCheck buildMode=false olur).
 /// </summary>
 public class BuildModePanelController : MonoBehaviour

@@ -17,8 +17,16 @@ public class ColonyStatusUI : MonoBehaviour
         int hour = 6, minute = 0;
         if (DayNightCycleController.Instance != null)
             DayNightCycleController.Instance.GetInGameTime(out hour, out minute);
+        int windSpeedMs = EnergyProductionSystem.Instance != null ? EnergyProductionSystem.Instance.CurrentWindSpeedMs : 0;
+        float prod = EnergyProductionSystem.Instance != null ? EnergyProductionSystem.Instance.CurrentProductionKw : 0f;
+        float cons = EnergyProductionSystem.Instance != null ? EnergyProductionSystem.Instance.CurrentConsumptionKw : 0f;
+        float stored = EnergyProductionSystem.Instance != null ? EnergyProductionSystem.Instance.CurrentStoredEnergyKj : 0f;
+        float cap = EnergyProductionSystem.Instance != null ? EnergyProductionSystem.Instance.CurrentMaxStorageKj : 0f;
+        string pClass = EnergyProductionSystem.Instance != null ? EnergyProductionSystem.Instance.CurrentPlanetClass.ToString() : "-";
+        string deficit = (EnergyProductionSystem.Instance != null && EnergyProductionSystem.Instance.HasPowerDeficit) ? " | KESİNTİ" : "";
+        string noStorage = (EnergyProductionSystem.Instance != null && cap <= 0.01f) ? " | DEPO YOK" : "";
 
-        statusText.text = $"N:{population} | Gün {day} {hour:D2}:{minute:D2}";
+        statusText.text = $"N:{population} | Gün {day} {hour:D2}:{minute:D2} | P:{pClass} | Rüzgar {windSpeedMs} m/s | Ü:{prod:0} T:{cons:0} | Depo:{stored:0}/{cap:0}{noStorage}{deficit}";
     }
 
     static int GetNpcCount()
