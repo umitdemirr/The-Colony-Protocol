@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63beb1827df63d149a3ca821c34d6514, type: 3}
+  m_Name: PowerCollector
+  m_EditorClassIdentifier: 
+  displayName: Power Collector
+  saveId: 
+  buildingPrefab: {fileID: 3893002568888545927, guid: a682fcde70a294344a23778827d5eed7, type: 3}
+  ghostPrefab: {fileID: 3893002568888545927, guid: 7586b75cce267ac42b0f6a46b3532f6f, type: 3}
+  buildCosts:
+  - type: 0
+    amount: 1
+  - type: 1
+    amount: 1
+  salvageRatio: 0.5
+  energyNeed: 0
+  energyProducerType: 0
+  energyProductionBase: 0
+  powerCollectorCapacity: 5000
+  icon: {fileID: -1349696105, guid: 3054a9969fa1777449ef57eced3836c3, type: 3}
