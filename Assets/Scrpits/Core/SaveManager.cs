@@ -55,6 +55,9 @@ public class SaveManager : MonoBehaviour
         if (DayNightCycleController.Instance != null)
             data.dayNight = DayNightCycleController.Instance.ToSaveData();
 
+        if (EnergyProductionSystem.Instance != null)
+            data.energySystem = EnergyProductionSystem.Instance.ToSaveData();
+
         return data;
     }
 
@@ -79,5 +82,8 @@ public class SaveManager : MonoBehaviour
 
         if (DayNightCycleController.Instance != null && data.dayNight != null)
             DayNightCycleController.Instance.LoadFromSaveData(data.dayNight);
+
+        if (EnergyProductionSystem.Instance != null && data.energySystem != null)
+            EnergyProductionSystem.Instance.LoadFromSaveData(data.energySystem);
     }
 }

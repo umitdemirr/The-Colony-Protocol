@@ -41,6 +41,12 @@ public class DayNightCycleController : MonoBehaviour
     public bool IsNight => _dayProgress > 0.5f;
     public int TotalDays => _totalDays;
 
+    public float GetSunStrength01()
+    {
+        // EvaluateCycle: 0 = tam gündüz, 1 = tam gece
+        return 1f - EvaluateCycle(_dayProgress);
+    }
+
     public void GetInGameTime(out int hour, out int minute)
     {
         float totalMinutes = _dayProgress * 24f * 60f;

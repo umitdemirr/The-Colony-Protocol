@@ -7,5 +7,6 @@ public enum ResourceType
     Biyoplastik,
     Spares,
     Meal,
-    MedicalSupplies
+    MedicalSupplies,
+    Energy
 }

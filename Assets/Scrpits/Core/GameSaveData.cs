@@ -13,14 +13,34 @@ public class GameSaveData
     public List<PlacedBuildingData> buildings = new List<PlacedBuildingData>();
     public List<NpcSaveData> npcs = new List<NpcSaveData>();
     public DayNightSaveData dayNight;
+    public EnergySystemSaveData energySystem;
 }
 
 [Serializable]
 public class PlacedBuildingData
 {
     public string definitionId;
+    public int energyNeed;
+    public int energyProducerType;
+    public float energyProductionBase;
+    public int powerCollectorCapacity;
     public float posX, posY, posZ;
     public float rotZ;
+
+    // Panel gösterimi (sağlık/oksijen) save/load'u
+    public int maxHealth;
+    public int currentHealth;
+    public bool isOxygenProducer;
+    public float oxygenAmount;
+    public float oxygenCapacity;
+    public float oxygenProductionCurrent;
+    public float oxygenProductionCapacity;
+}
+
+[Serializable]
+public class EnergySystemSaveData
+{
+    public float storedEnergyKj;
 }
 
 [Serializable]
