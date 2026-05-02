@@ -31,6 +31,11 @@ public class BuildingPlacementTracker : MonoBehaviour
         var pb = obj.GetComponent<PlacedBuilding>();
         if (pb == null) pb = obj.AddComponent<PlacedBuilding>();
         pb.definitionId = def.GetSaveId();
+        pb.energyNeed = Mathf.Max(0, def.energyNeed);
+        pb.energyProducerType = def.energyProducerType;
+        pb.energyProductionBase = Mathf.Max(0f, def.energyProductionBase);
+        pb.powerCollectorCapacity = Mathf.Max(0, def.powerCollectorCapacity);
+        pb.energyRamp01 = 0f;
     }
 
     public List<PlacedBuildingData> CollectSaveData()
@@ -46,10 +51,23 @@ public class BuildingPlacementTracker : MonoBehaviour
             var d = new PlacedBuildingData
             {
                 definitionId = pb.definitionId,
+                energyNeed = Mathf.Max(0, pb.energyNeed),
+                energyProducerType = (int)pb.energyProducerType,
+                energyProductionBase = Mathf.Max(0f, pb.energyProductionBase),
+                powerCollectorCapacity = Mathf.Max(0, pb.powerCollectorCapacity),
                 posX = t.position.x,
                 posY = t.position.y,
                 posZ = t.position.z,
-                rotZ = t.eulerAngles.z
+                rotZ = t.eulerAngles.z,
+
+                maxHealth = Mathf.Max(1, pb.maxHealth),
+                currentHealth = Mathf.Clamp(pb.currentHealth, 0, Mathf.Max(1, pb.maxHealth)),
+
+                isOxygenProducer = pb.isOxygenProducer,
+                oxygenAmount = Mathf.Max(0f, pb.oxygenAmount),
+                oxygenCapacity = Mathf.Max(0f, pb.oxygenCapacity),
+                oxygenProductionCurrent = Mathf.Max(0f, pb.oxygenProductionCurrent),
+                oxygenProductionCapacity = Mathf.Max(0f, pb.oxygenProductionCapacity)
             };
             list.Add(d);
         }
@@ -76,6 +94,22 @@ public class BuildingPlacementTracker : MonoBehaviour
             var pb = obj.GetComponent<PlacedBuilding>();
             if (pb == null) pb = obj.AddComponent<PlacedBuilding>();
             pb.definitionId = d.definitionId;
+            pb.energyNeed = d.energyNeed > 0 ? d.energyNeed : Mathf.Max(0, def.energyNeed);
+            pb.energyProducerType = d.energyProducerType >= 0
+                ? (BuildingDefinition.EnergyProducerType)d.energyProducerType
+                : def.energyProducerType;
+            pb.energyProductionBase = d.energyProductionBase > 0f ? d.energyProductionBase : Mathf.Max(0f, def.energyProductionBase);
+            pb.powerCollectorCapacity = d.powerCollectorCapacity > 0 ? d.powerCollectorCapacity : Mathf.Max(0, def.powerCollectorCapacity);
+            pb.energyRamp01 = 1f;
+
+            // Panel değerlerini save'den geri al.
+            pb.maxHealth = d.maxHealth > 0 ? d.maxHealth : pb.maxHealth;
+            pb.currentHealth = Mathf.Clamp(d.currentHealth, 0, Mathf.Max(1, pb.maxHealth));
+            pb.isOxygenProducer = d.isOxygenProducer;
+            pb.oxygenAmount = Mathf.Max(0f, d.oxygenAmount);
+            pb.oxygenCapacity = Mathf.Max(0f, d.oxygenCapacity);
+            pb.oxygenProductionCurrent = Mathf.Max(0f, d.oxygenProductionCurrent);
+            pb.oxygenProductionCapacity = Mathf.Max(0f, d.oxygenProductionCapacity);
 
             var occ = obj.GetComponentInChildren<GridOccupier2D>(true);
             if (occ != null)

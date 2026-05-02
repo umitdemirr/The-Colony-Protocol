@@ -6,8 +6,7 @@ using UnityEngine.Tilemaps;
 /// </summary>
 public static class BuildingRoadWallClearer
 {
-    const string WallNameToken = "Wall";
-    const string GroundNameToken = "Ground";
+    static readonly string[] WallNameTokens = { "wall", "duvar" };
     const int GateHalfWidthCells = 1; // 1 => toplam 3 hücre (sol-orta-sağ)
 
     /// <param name="connectionCell">Yolun bina üzerindeki uç hücresi (world grid).</param>
@@ -29,7 +28,7 @@ public static class BuildingRoadWallClearer
         {
             Tilemap tm = tilemaps[i];
             if (tm == null) continue;
-            if (!tm.gameObject.name.Contains(WallNameToken)) continue;
+            if (!IsWallTilemap(tm)) continue;
 
             // Girişte 3 hücrelik kapı aç: connection satırı + ilk yol satırı.
             ClearBand(tm, worldGrid, connectionCell, perp, GateHalfWidthCells);
@@ -40,8 +39,6 @@ public static class BuildingRoadWallClearer
             if (tmCol != null)
                 tmCol.ProcessTilemapChanges();
         }
-
-        MakeGroundCollidersNonBlocking(buildingRoot);
 
         // Duvar açıldıktan sonra bina footprint'ini yeniden hesapla.
         if (gridManager != null)
@@ -57,6 +54,18 @@ public static class BuildingRoadWallClearer
                 occ.Occupy(gridManager);
             }
         }
+    }
+
+    static bool IsWallTilemap(Tilemap tm)
+    {
+        if (tm == null || tm.gameObject == null) return false;
+        string n = tm.gameObject.name.ToLowerInvariant();
+        for (int i = 0; i < WallNameTokens.Length; i++)
+        {
+            if (n.Contains(WallNameTokens[i]))
+                return true;
+        }
+        return false;
     }
 
     static void ClearTileAtWorldCell(Tilemap wallMap, Grid worldGrid, Vector3Int worldCell)
@@ -87,22 +96,5 @@ public static class BuildingRoadWallClearer
         if (Mathf.Abs(d.y) > 0)
             return new Vector3Int(0, d.y > 0 ? 1 : -1, 0);
         return Vector3Int.right;
-    }
-
-    static void MakeGroundCollidersNonBlocking(GameObject buildingRoot)
-    {
-        var tilemaps = buildingRoot.GetComponentsInChildren<Tilemap>(true);
-        for (int i = 0; i < tilemaps.Length; i++)
-        {
-            Tilemap tm = tilemaps[i];
-            if (tm == null) continue;
-            if (!tm.gameObject.name.Contains(GroundNameToken)) continue;
-
-            var tmCol = tm.GetComponent<TilemapCollider2D>();
-            if (tmCol != null) tmCol.enabled = false;
-
-            var comp = tm.GetComponent<CompositeCollider2D>();
-            if (comp != null) comp.enabled = false;
-        }
     }
 }

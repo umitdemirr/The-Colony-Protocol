@@ -8,7 +8,6 @@ public class MouseCheck : MonoBehaviour
     [Header("Build Mode")]
     public bool buildMode = false;
     public GameObject buildPanel; // Canvas içindeki butonların bulunduğu panel
-    public KeyCode toggleBuildModeKey = KeyCode.B;
     public KeyCode cancelBuildKey = KeyCode.Escape;
 
     [Header("Prefabs & References")]
@@ -32,6 +31,8 @@ public class MouseCheck : MonoBehaviour
     [Min(1)] public int maxCenterManhattanDistanceForPotential = 200;
 
     public System.Action<bool> OnBuildModeChanged;
+
+    PanelManager _panelManagerCache;
 
     BuildingDefinition _currentDef;
     GameObject currentGhost;
@@ -59,6 +60,10 @@ public class MouseCheck : MonoBehaviour
         buildingPrefab = def.buildingPrefab;
         ghostPrefab = def.ghostPrefab;
 
+        // UI'dan bina seçildiğinde build mode kapalı olsa bile yerleştirme akışı başlasın.
+        if (!buildMode)
+            SetBuildMode(true);
+
         // Seçim değişince ghost'u yeniden üret.
         if (buildMode)
         {
@@ -74,11 +79,6 @@ public class MouseCheck : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(toggleBuildModeKey))
-        {
-            SetBuildMode(!buildMode);
-        }
-
         if (!buildMode) return;
         if (tilemap == null || gridManager == null || cam == null) return;
         if (currentGhost == null) EnsureGhost();
@@ -119,7 +119,13 @@ public class MouseCheck : MonoBehaviour
         canPlace = canPlace && canAfford && hasConnectionPotential;
         SetGhostColor(canPlace ? Color.green : Color.red);
 
-        if (Input.GetKeyDown(cancelBuildKey) || Input.GetMouseButtonDown(1))
+        if (Input.GetKeyDown(cancelBuildKey))
+        {
+            SetBuildMode(false);
+            return;
+        }
+
+        if (Input.GetMouseButtonDown(1))
         {
             SetBuildMode(false);
             return;
@@ -140,6 +146,16 @@ public class MouseCheck : MonoBehaviour
 
                 GameObject obj = Instantiate(buildingPrefab, placePos, Quaternion.Euler(0f, 0f, _currentRotation), buildingParent);
                 SnapPlacedBuildingToCell(obj, placePos);
+
+                // Tracker olmasa bile enerji sistemi üretim/tüketim verisini okuyabilsin.
+                var pb = obj.GetComponent<PlacedBuilding>();
+                if (pb == null) pb = obj.AddComponent<PlacedBuilding>();
+                pb.definitionId = _currentDef.GetSaveId();
+                pb.energyNeed = Mathf.Max(0, _currentDef.energyNeed);
+                pb.energyProducerType = _currentDef.energyProducerType;
+                pb.energyProductionBase = Mathf.Max(0f, _currentDef.energyProductionBase);
+                pb.powerCollectorCapacity = Mathf.Max(0, _currentDef.powerCollectorCapacity);
+                pb.energyRamp01 = 0f;
 
                 // Tek hücre yerine, prefabın collider bounds'ının kapladığı tüm hücreleri engel yap.
                 GridOccupier2D occ = obj.GetComponentInChildren<GridOccupier2D>(true);
@@ -170,9 +186,8 @@ public class MouseCheck : MonoBehaviour
     public void SetBuildMode(bool enabled)
     {
         buildMode = enabled;
-
-        // Paneli doğrudan burada aç/kapat: Controller disable olsa bile düzgün geri gelir.
-        if (buildPanel != null) buildPanel.SetActive(buildMode);
+        // buildPanel toggling'i burada yapmıyoruz.
+        // UI aç/kapa işi BuildModePanelController üzerinden OnBuildModeChanged event'iyle yönetiliyor.
 
         if (!buildMode)
         {
@@ -195,6 +210,23 @@ public class MouseCheck : MonoBehaviour
         _currentRotation = 0;
 
         OnBuildModeChanged?.Invoke(buildMode);
+    }
+
+    void CancelCurrentSelection()
+    {
+        _currentDef = null;
+        buildingPrefab = null;
+        ghostPrefab = null;
+        _currentRotation = 0;
+        InvalidateConnectionPotentialCache();
+
+        if (currentGhost != null)
+            Destroy(currentGhost);
+
+        currentGhost = null;
+        _ghostRoot = null;
+        _ghostAnchor = null;
+        _ghostOccupier = null;
     }
 
     void EnsureGhost()
