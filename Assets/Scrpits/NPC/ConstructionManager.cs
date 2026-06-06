@@ -9,11 +9,16 @@ public class ConstructionManager : MonoBehaviour
 {
     private static ConstructionManager _instance;
     private static bool _isCreating = false;
+    private static bool _isShuttingDown = false;
 
     public static ConstructionManager Instance
     {
         get
         {
+            if (_isShuttingDown)
+            {
+                return null;
+            }
             if (_instance == null && !_isCreating)
             {
                 _isCreating = true;
@@ -38,12 +43,27 @@ public class ConstructionManager : MonoBehaviour
 
     void Awake()
     {
+        _isShuttingDown = false;
         if (_instance != null && _instance != this)
         {
             Destroy(gameObject);
             return;
         }
         _instance = this;
+    }
+
+    void OnDestroy()
+    {
+        if (_instance == this)
+        {
+            _isShuttingDown = true;
+            _instance = null;
+        }
+    }
+
+    void OnApplicationQuit()
+    {
+        _isShuttingDown = true;
     }
 
     void Start()
@@ -87,7 +107,6 @@ public class ConstructionManager : MonoBehaviour
     public void UnregisterAstronaut(Astronaut ast)
     {
         astronauts.Remove(ast);
-        Debug.Log($"[ConstructionManager] Astronot kaydı silindi: '{ast.astronautName}'");
     }
 
     private float _scanTimer = 0f;
@@ -106,7 +125,6 @@ public class ConstructionManager : MonoBehaviour
     private void EnsureAllNpcsHaveAstronautComponent()
     {
         var movers = FindObjectsByType<NpcMoverAStar2D>(FindObjectsSortMode.None);
-        Debug.Log($"[ConstructionManager] Tarama: Sahnede {movers.Length} adet NpcMoverAStar2D bulundu.");
         foreach (var mover in movers)
         {
             if (mover != null)
@@ -116,7 +134,6 @@ public class ConstructionManager : MonoBehaviour
                 {
                     ast = mover.gameObject.AddComponent<Astronaut>();
                     ast.role = (NpcRole)Random.Range(0, 3);
-                    Debug.Log($"[ConstructionManager] '{mover.gameObject.name}' objesine yeni Astronaut eklendi.");
                 }
                 else
                 {
@@ -124,40 +141,14 @@ public class ConstructionManager : MonoBehaviour
                     if (!astronauts.Contains(ast))
                     {
                         RegisterAstronaut(ast);
-                        Debug.Log($"[ConstructionManager] '{ast.astronautName}' listede eksikti, taramada kurtarıldı ve el ile eklendi.");
                     }
                 }
             }
         }
     }
 
-    private float _logTimer = 0f;
-
     private void AssignTasksToAstronauts()
     {
-        _logTimer += Time.deltaTime;
-        if (_logTimer >= 3.0f)
-        {
-            _logTimer = 0f;
-            Debug.Log($"[ConstructionManager] Aktif inşaat bekleyen bina: {pendingBuildings.Count}, Kayıtlı astronot: {astronauts.Count}");
-            for (int j = 0; j < pendingBuildings.Count; j++)
-            {
-                var b = pendingBuildings[j];
-                if (b != null)
-                {
-                    Debug.Log($"  -> Bekleyen Bina: '{b.definition.displayName}' | Konum: {b.targetPosition} | Tamamlandı mı: {b.IsConstructed}");
-                }
-            }
-            for (int k = 0; k < astronauts.Count; k++)
-            {
-                var a = astronauts[k];
-                if (a != null)
-                {
-                    Debug.Log($"  -> Astronot: '{a.astronautName}' | Rol: {a.role} | Durum: {a.state} | Taşıyor mu: {a.isCarrying}");
-                }
-            }
-        }
-
         if (pendingBuildings.Count == 0 || astronauts.Count == 0) return;
 
         foreach (var building in pendingBuildings)
@@ -178,7 +169,6 @@ public class ConstructionManager : MonoBehaviour
                         Astronaut candidate = FindAvailableAstronaut(preferredRole);
                         if (candidate != null)
                         {
-                            Debug.Log($"[ConstructionManager] Görev Eşleşti: Astronot '{candidate.astronautName}' ({candidate.role}) -> '{building.definition.displayName}' binası için '{req.type}' taşıyacak.");
                             candidate.AssignTask(building, req.type);
                         }
                         else

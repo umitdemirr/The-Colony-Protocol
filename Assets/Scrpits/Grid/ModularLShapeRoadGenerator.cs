@@ -134,7 +134,7 @@ public class ModularLShapeRoadGenerator : MonoBehaviour
         committedRoads.Clear();
         _roadGroupCounter = 0;
 
-        Transform parent = ResolveSpawnParent();
+        Transform parent = ResolveSpawnParent(false);
         if (parent != null)
         {
             var toDestroy = new List<GameObject>();
@@ -453,15 +453,20 @@ public class ModularLShapeRoadGenerator : MonoBehaviour
     //  Dahili yardımcılar
     // ──────────────────────────────────────────────────────────
 
-    private Transform ResolveSpawnParent()
+    private Transform ResolveSpawnParent(bool createIfMissing = true)
     {
         if (roadsRoot != null) return roadsRoot;
         if (BuildingPlacementTracker.Instance?.buildingParent != null)
             return BuildingPlacementTracker.Instance.buildingParent;
+#if UNITY_2023_1_OR_NEWER
+        var mc = FindFirstObjectByType<MouseCheck>();
+#else
         var mc = FindObjectOfType<MouseCheck>();
+#endif
         if (mc?.buildingParent != null) return mc.buildingParent;
         var found = GameObject.Find(roadsRootName);
         if (found != null) return found.transform;
+        if (!createIfMissing) return null;
         return new GameObject(roadsRootName).transform;
     }
 

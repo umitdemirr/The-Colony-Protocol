@@ -12,11 +12,16 @@ public class SaveManager : MonoBehaviour
 {
     private static SaveManager _instance;
     private static bool _isCreating = false;
+    private static bool _isShuttingDown = false;
 
     public static SaveManager Instance
     {
         get
         {
+            if (_isShuttingDown)
+            {
+                return null;
+            }
             if (_instance == null && !_isCreating)
             {
                 _isCreating = true;
@@ -64,6 +69,7 @@ public class SaveManager : MonoBehaviour
 
     void Awake()
     {
+        _isShuttingDown = false;
         if (_instance != null && _instance != this)
         {
             Destroy(this);
@@ -88,6 +94,20 @@ public class SaveManager : MonoBehaviour
 
     void OnEnable() { SceneManager.sceneLoaded += OnSceneLoaded; }
     void OnDisable() { SceneManager.sceneLoaded -= OnSceneLoaded; }
+
+    void OnDestroy()
+    {
+        if (_instance == this)
+        {
+            _isShuttingDown = true;
+            _instance = null;
+        }
+    }
+
+    void OnApplicationQuit()
+    {
+        _isShuttingDown = true;
+    }
 
     void Update()
     {
