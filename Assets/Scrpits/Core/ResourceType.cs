@@ -8,5 +8,6 @@ public enum ResourceType
     Spares,
     Meal,
     MedicalSupplies,
-    Energy
+    Energy,
+    Water
 }

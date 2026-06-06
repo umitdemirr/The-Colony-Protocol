@@ -9,11 +9,40 @@ using UnityEngine;
 public class GameSaveData
 {
     public string version = "1";
+    public string saveTimestamp;
     public ResourceInventory.ResourceSaveData resources;
     public List<PlacedBuildingData> buildings = new List<PlacedBuildingData>();
     public List<NpcSaveData> npcs = new List<NpcSaveData>();
     public DayNightSaveData dayNight;
     public EnergySystemSaveData energySystem;
+    public List<PlacedRoadData> roads = new List<PlacedRoadData>();
+}
+
+[Serializable]
+public struct SerializableVector3Int
+{
+    public int x;
+    public int y;
+    public int z;
+
+    public SerializableVector3Int(Vector3Int v)
+    {
+        x = v.x;
+        y = v.y;
+        z = v.z;
+    }
+
+    public Vector3Int ToVector3Int()
+    {
+        return new Vector3Int(x, y, z);
+    }
+}
+
+[Serializable]
+public class PlacedRoadData
+{
+    public List<SerializableVector3Int> pathCells = new List<SerializableVector3Int>();
+    public bool usePipes;
 }
 
 [Serializable]
@@ -35,6 +64,10 @@ public class PlacedBuildingData
     public float oxygenCapacity;
     public float oxygenProductionCurrent;
     public float oxygenProductionCapacity;
+    public float waterAmount;
+    public float waterCapacity;
+    public float storedEnergy;
+    public float efficiency01;
 }
 
 [Serializable]
@@ -48,4 +81,6 @@ public class NpcSaveData
 {
     public string id;
     public float posX, posY;
+    public string astronautName;
+    public int role;
 }

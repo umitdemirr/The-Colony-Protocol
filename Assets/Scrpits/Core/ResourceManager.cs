@@ -31,11 +31,10 @@ public class ResourceManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
+            Destroy(this); // Sadece bileşeni sil, paylaşılan GameObject'i silme!
             return;
         }
         Instance = this;
-        DontDestroyOnLoad(gameObject);
 
         InitializeStartResources();
     }
@@ -57,8 +56,13 @@ public class ResourceManager : MonoBehaviour
 
     public void LoadFromSaveData(ResourceInventory.ResourceSaveData data)
     {
-        if (data == null) return;
+        if (data == null)
+        {
+            Debug.LogWarning("[ResourceManager] LoadFromSaveData: data null!");
+            return;
+        }
         _inventory.LoadFromSaveData(data);
+        Debug.Log($"[ResourceManager] Kaynaklar yüklendi: Metal={_inventory.Get(ResourceType.Metal)}, Biyoplastik={_inventory.Get(ResourceType.Biyoplastik)}, Spares={_inventory.Get(ResourceType.Spares)}, Meal={_inventory.Get(ResourceType.Meal)}");
     }
 
     void Update()

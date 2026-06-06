@@ -76,7 +76,7 @@ public class EnergyProductionSystem : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
+            Destroy(this); // Sadece bileşeni sil, paylaşılan GameObject'i silme!
             return;
         }
         Instance = this;
@@ -148,7 +148,7 @@ public class EnergyProductionSystem : MonoBehaviour
         {
             if (t == null) continue;
             var pb = t.GetComponent<PlacedBuilding>();
-            if (pb == null) continue;
+            if (pb == null || !pb.IsRealBuilding) continue;
 
             BuildingDefinition def = null;
             if (!string.IsNullOrEmpty(pb.definitionId))
@@ -182,7 +182,7 @@ public class EnergyProductionSystem : MonoBehaviour
         {
             if (t == null) continue;
             var pb = t.GetComponent<PlacedBuilding>();
-            if (pb == null) continue;
+            if (pb == null || !pb.IsRealBuilding) continue;
             BuildingDefinition def = null;
             if (!string.IsNullOrEmpty(pb.definitionId))
                 def = buildingTracker.GetDefinition(pb.definitionId);
@@ -205,7 +205,7 @@ public class EnergyProductionSystem : MonoBehaviour
         {
             if (t == null) continue;
             var pb = t.GetComponent<PlacedBuilding>();
-            if (pb == null) continue;
+            if (pb == null || !pb.IsRealBuilding) continue;
             if (pb.energyRamp01 >= 1f) continue;
             pb.energyRamp01 = Mathf.Clamp01(pb.energyRamp01 + step);
         }
@@ -219,30 +219,46 @@ public class EnergyProductionSystem : MonoBehaviour
         {
             if (t == null) continue;
             var pb = t.GetComponent<PlacedBuilding>();
-            if (pb == null) continue;
+            if (pb == null || !pb.IsRealBuilding) continue;
             total += Mathf.Max(0, pb.powerCollectorCapacity);
+        }
+        return total;
+    }
+
+    float CalculateStoredEnergyKj()
+    {
+        if (buildingTracker == null || buildingTracker.buildingParent == null) return 0f;
+        float total = 0f;
+        foreach (Transform t in buildingTracker.buildingParent)
+        {
+            if (t == null) continue;
+            var pb = t.GetComponent<PlacedBuilding>();
+            if (pb == null || !pb.IsRealBuilding) continue;
+            total += pb.storedEnergy;
         }
         return total;
     }
 
     void ApplyEnergyTick()
     {
-        // kW * s = kJ
-        float producedKj = currentProductionKw * energyTickSeconds;
-        float consumedKj = currentConsumptionKw * energyTickSeconds;
-        float deltaKj = producedKj - consumedKj;
-
-        if (deltaKj >= 0f)
+        // Şebeke simülasyonundan gelen depolanmış enerjiyi al
+        storedEnergyKj = CalculateStoredEnergyKj();
+        
+        // Şebekede elektrik yetersizliği olup olmadığını kontrol et
+        hasPowerDeficit = false;
+        if (buildingTracker != null && buildingTracker.buildingParent != null)
         {
-            storedEnergyKj = Mathf.Min(maxStorageKj, storedEnergyKj + deltaKj);
-            hasPowerDeficit = false;
-        }
-        else
-        {
-            float need = -deltaKj;
-            float used = Mathf.Min(storedEnergyKj, need);
-            storedEnergyKj -= used;
-            hasPowerDeficit = used < need;
+            foreach (Transform t in buildingTracker.buildingParent)
+            {
+                if (t == null) continue;
+                var pb = t.GetComponent<PlacedBuilding>();
+                if (pb == null || !pb.IsRealBuilding) continue;
+                if (pb.energyNeed > 0 && pb.efficiency01 == 0f)
+                {
+                    hasPowerDeficit = true;
+                    break;
+                }
+            }
         }
 
         if (resourceManager != null)

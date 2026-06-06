@@ -58,7 +58,7 @@ public class DayNightCycleController : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
+            Destroy(this); // Sadece bileşeni sil, paylaşılan GameObject'i silme!
             return;
         }
         Instance = this;
