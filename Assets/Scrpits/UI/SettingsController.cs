@@ -19,6 +19,17 @@ public class SettingsController : MonoBehaviour
     [SerializeField] private Button backButton;
     [SerializeField] private PauseMenuController pauseMenuController;
 
+    [Header("Tema Görselleri (Turuncu / Mavi)")]
+    [SerializeField] private Image panelTitleImage;
+    [SerializeField] private Sprite settingsTitleOrangeSprite;
+    [SerializeField] private Sprite settingsTitleBlueSprite;
+    [SerializeField] private Sprite backButtonOrangeSprite;
+    [SerializeField] private Sprite backButtonBlueSprite;
+    [SerializeField] private Sprite fullscreenToggleOrangeSprite;
+    [SerializeField] private Sprite fullscreenToggleBlueSprite;
+    [Tooltip("Toggle'ın arka plan görseli (Boşsa targetGraphic kullanılır)")]
+    [SerializeField] private Image fullscreenToggleImage;
+
     private Resolution[] _resolutions;
     private List<Resolution> _filteredResolutions;
 
@@ -211,5 +222,42 @@ public class SettingsController : MonoBehaviour
         {
             gameObject.SetActive(false);
         }
+    }
+
+    void OnEnable()
+    {
+        ApplyTheme();
+    }
+
+    private void ApplyTheme()
+    {
+        bool useBlue = IsNightTime();
+
+        if (backButton != null)
+        {
+            Image btnImg = backButton.GetComponent<Image>();
+            if (btnImg != null)
+            {
+                btnImg.sprite = useBlue ? backButtonBlueSprite : backButtonOrangeSprite;
+            }
+        }
+
+        if (panelTitleImage != null)
+        {
+            panelTitleImage.sprite = useBlue ? settingsTitleBlueSprite : settingsTitleOrangeSprite;
+        }
+
+        Image toggleImg = fullscreenToggleImage != null ? fullscreenToggleImage : (fullscreenToggle != null ? fullscreenToggle.targetGraphic as Image : null);
+        if (toggleImg != null)
+        {
+            toggleImg.sprite = useBlue ? fullscreenToggleBlueSprite : fullscreenToggleOrangeSprite;
+        }
+    }
+
+    private bool IsNightTime()
+    {
+        if (DayNightCycleController.Instance == null) return false;
+        float p = DayNightCycleController.Instance.DayProgress;
+        return p >= 0.75f; // Gece saatleri (PauseMenuController ile aynı)
     }
 }

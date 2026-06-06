@@ -137,7 +137,17 @@ public class MainMenuRuntimeBinder : MonoBehaviour
     void OnLoadGameClicked()
     {
         if (saveLoadPanel != null)
-            saveLoadPanel.SetActive(true);
+        {
+            var ui = saveLoadPanel.GetComponent<SaveLoadPanelUI>();
+            if (ui != null)
+            {
+                ui.OpenPanel(SaveLoadPanelUI.PanelMode.Load);
+            }
+            else
+            {
+                saveLoadPanel.SetActive(true);
+            }
+        }
     }
 
     void OnExitClicked()

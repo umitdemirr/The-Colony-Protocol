@@ -183,12 +183,18 @@ public class PauseMenuController : MonoBehaviour
 
     public void SaveGame()
     {
-        if (SaveManager.Instance == null) return;
-        
-        SaveManager.Instance.SaveNew();
-        
-        if (saveButtonText != null)
-            ShowButtonFeedback(saveButtonText, "KAYDEDİLDİ ✓", new Color(0.2f, 0.9f, 0.3f));
+        if (saveLoadPanel != null)
+        {
+            var ui = saveLoadPanel.GetComponent<SaveLoadPanelUI>();
+            if (ui != null)
+            {
+                ui.OpenPanel(SaveLoadPanelUI.PanelMode.Save);
+            }
+            else
+            {
+                saveLoadPanel.SetActive(true);
+            }
+        }
     }
 
     // ─────────────────────────── LOAD ───────────────────────────
@@ -197,9 +203,15 @@ public class PauseMenuController : MonoBehaviour
     {
         if (saveLoadPanel != null)
         {
-            saveLoadPanel.SetActive(true);
             var ui = saveLoadPanel.GetComponent<SaveLoadPanelUI>();
-            if (ui != null) ui.RefreshList();
+            if (ui != null)
+            {
+                ui.OpenPanel(SaveLoadPanelUI.PanelMode.Load);
+            }
+            else
+            {
+                saveLoadPanel.SetActive(true);
+            }
         }
     }
 
