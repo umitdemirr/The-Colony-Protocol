@@ -19,11 +19,23 @@ public class SaveLoadPanelUI : MonoBehaviour
     [Tooltip("Sahne yüklemek için ana sahne adı")]
     public string gameplaySceneName = "SampleScene";
 
+    [Tooltip("Paneli kapatmak için kullanılacak geri/kapat butonu")]
+    public Button closeButton;
+
     [Header("Opsiyonel Onay Paneli")]
     public GameObject confirmPanel;
     public TMP_Text confirmText;
 
     private string _pendingLoadFileName;
+
+    void Awake()
+    {
+        if (closeButton != null)
+        {
+            closeButton.onClick.RemoveListener(ClosePanel);
+            closeButton.onClick.AddListener(ClosePanel);
+        }
+    }
 
     void OnEnable()
     {
@@ -98,10 +110,16 @@ public class SaveLoadPanelUI : MonoBehaviour
 
     void ExecuteLoad()
     {
-        if (SaveManager.Instance == null) return;
+        if (SaveManager.Instance == null)
+        {
+            Debug.LogError("[SaveLoadPanelUI] SaveManager.Instance is NULL! Cannot load.");
+            return;
+        }
+
+        string activeScene = SceneManager.GetActiveScene().name;
 
         // Eğer oyundayken yüklersek doğrudan Load, ana menüdeysek sahneyi açıp Load.
-        if (SceneManager.GetActiveScene().name == "StartScene")
+        if (activeScene == "StartScene")
         {
             SaveManager.Instance.PendingLoadFileName = _pendingLoadFileName;
             SceneManager.LoadScene(gameplaySceneName);

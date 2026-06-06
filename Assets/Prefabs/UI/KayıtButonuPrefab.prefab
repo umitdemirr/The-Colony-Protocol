@@ -149,7 +149,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   infoText: {fileID: 817742598440453026}
   loadButton: {fileID: 3478144838009085612}
-  deleteButton: {fileID: 0}
+  deleteButton: {fileID: 7207741768141991206}
 --- !u!1 &2861504539474829715
 GameObject:
   m_ObjectHideFlags: 0
