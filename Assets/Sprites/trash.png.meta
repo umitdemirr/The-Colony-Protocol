@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 7c9ee41669bbc5a48b7e4103cbff2857
+guid: 0db90d19a2cb4994d85d91a928e02b16
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -45,7 +45,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 0
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 32
@@ -97,13 +97,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Rocket2_0
+      name: trash_2
       rect:
         serializedVersion: 2
-        x: 18
-        y: 55
-        width: 60
-        height: 60
+        x: 64
+        y: 96
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -111,29 +111,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2c21a878b05341345946eb8f07ba66cc
-      internalID: 91086488
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Rocket2_1
-      rect:
-        serializedVersion: 2
-        x: 18
-        y: 0
-        width: 60
-        height: 55
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: ab9379e8ea8abba40b6043a211803a99
-      internalID: 222241277
+      spriteID: e9dbeab0d62c4914dabe883336a028d8
+      internalID: 1662403129
       vertices: []
       indices: 
       edges: []
@@ -149,8 +128,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Rocket2_0: 91086488
-      Rocket2_1: 222241277
+      trash_0: 17565230
+      trash_1: 563002827
+      trash_2: 1662403129
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

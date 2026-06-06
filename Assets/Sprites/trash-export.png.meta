@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 7c9ee41669bbc5a48b7e4103cbff2857
+guid: 6d8aa5d57b6d95a458825307107b4341
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -45,7 +45,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 0
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 32
@@ -97,13 +97,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Rocket2_0
+      name: trash-export_0
       rect:
         serializedVersion: 2
-        x: 18
-        y: 55
-        width: 60
-        height: 60
+        x: 0
+        y: 0
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -111,20 +111,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2c21a878b05341345946eb8f07ba66cc
-      internalID: 91086488
+      spriteID: 4aa65a0094d6c1e428156a7d02a9e711
+      internalID: 1798858911
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Rocket2_1
+      name: trash-export_1
       rect:
         serializedVersion: 2
-        x: 18
+        x: 32
         y: 0
-        width: 60
-        height: 55
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -132,8 +132,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ab9379e8ea8abba40b6043a211803a99
-      internalID: 222241277
+      spriteID: 03189b590e97ec24a8517fab998fa2cb
+      internalID: 1612712587
       vertices: []
       indices: 
       edges: []
@@ -149,8 +149,8 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Rocket2_0: 91086488
-      Rocket2_1: 222241277
+      trash-export_0: 1798858911
+      trash-export_1: 1612712587
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

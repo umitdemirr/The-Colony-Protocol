@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 7c9ee41669bbc5a48b7e4103cbff2857
+guid: 2d85fad601c7c66428b557e523eea7f7
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -45,10 +45,10 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 0
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 32
+  spritePixelsToUnits: 64
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -97,13 +97,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Rocket2_0
+      name: status-icon_0
       rect:
         serializedVersion: 2
-        x: 18
-        y: 55
-        width: 60
-        height: 60
+        x: 0
+        y: 0
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -111,20 +111,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2c21a878b05341345946eb8f07ba66cc
-      internalID: 91086488
+      spriteID: 0fd14270ee591c045acd6e1a64eb4741
+      internalID: 613360193
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Rocket2_1
+      name: status-icon_1
       rect:
         serializedVersion: 2
-        x: 18
+        x: 64
         y: 0
-        width: 60
-        height: 55
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -132,8 +132,50 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ab9379e8ea8abba40b6043a211803a99
-      internalID: 222241277
+      spriteID: 2965184d07e2fb14d9e6479199426158
+      internalID: 45872538
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: status-icon_2
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9deae6ef6a7396a4599f6192d983e853
+      internalID: -368337097
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: status-icon_3
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b1688bf69da2c76408927996b63a2473
+      internalID: 1755647261
       vertices: []
       indices: 
       edges: []
@@ -149,8 +191,10 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Rocket2_0: 91086488
-      Rocket2_1: 222241277
+      status-icon_0: 613360193
+      status-icon_1: 45872538
+      status-icon_2: -368337097
+      status-icon_3: 1755647261
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
