@@ -26,4 +26,17 @@ MonoBehaviour:
   energyProducerType: 0
   energyProductionBase: 0
   powerCollectorCapacity: 0
+  maxHealth: 100
+  isWaterProducer: 0
+  waterProductionRate: 0
+  requiresWater: 1
+  waterConsumptionRate: 1
+  storesWater: 0
+  waterCapacity: 0
+  storesOxygen: 0
+  isOxygenProducer: 1
+  oxygenSupportCapacity: 0
+  maxPlacementCount: 0
+  isExterior: 0
+  requiredBuildings: []
   icon: {fileID: 1429359898, guid: b7605d42ed3d2c24f9aecdd0c937b191, type: 3}

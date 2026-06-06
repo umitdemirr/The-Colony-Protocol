@@ -134,21 +134,21 @@ Tilemap:
   - m_RefCount: 0
     m_Data: {fileID: 0}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 43e3ff4d73d0eb64683d453a29f8f2c3, type: 2}
+    m_Data: {fileID: 11400000, guid: aaee35f33ae366f49a933d6e333c8276, type: 2}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 231ce03f74f902341aff85b040f62cdb, type: 2}
+    m_Data: {fileID: 11400000, guid: bffab69e2e891274e83fe93509e8d564, type: 2}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 94c301fca2db3204a83bcfd3354c1a33, type: 2}
+    m_Data: {fileID: 11400000, guid: 2c1702f8d3164414ca23b80125983bcf, type: 2}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 0911915cc1503114c87e54b609b7bf53, type: 2}
+    m_Data: {fileID: 11400000, guid: 396acf221110acc4f95d50ef69100d6b, type: 2}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 8bbc30593c334e4448d5823e01091689, type: 2}
+    m_Data: {fileID: 11400000, guid: f8b5c3c212d16fc46bb434ef530e5748, type: 2}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 905d622b5d6c79e458add7b0343f8db9, type: 2}
+    m_Data: {fileID: 11400000, guid: 2f91185e5200d5444b066339c8f9e6a8, type: 2}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: c00b966c19fe9494893ebddd8b71f75a, type: 2}
+    m_Data: {fileID: 11400000, guid: f2337e0fe2e323746ad3e6fda9220174, type: 2}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 6ba7ed40d2d7c644f9807529f95f9356, type: 2}
+    m_Data: {fileID: 11400000, guid: c2445b01ae1b5ec4e9bcffe14f710812, type: 2}
   m_TileSpriteArray:
   - m_RefCount: 0
     m_Data: {fileID: 0}
@@ -157,21 +157,21 @@ Tilemap:
   - m_RefCount: 0
     m_Data: {fileID: 0}
   - m_RefCount: 1
-    m_Data: {fileID: -2092398161, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: -1043165594, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   - m_RefCount: 1
-    m_Data: {fileID: -752642038, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: 1951356340, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   - m_RefCount: 1
-    m_Data: {fileID: -1945366613, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: -916244703, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   - m_RefCount: 1
-    m_Data: {fileID: -2118315156, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: 918692827, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   - m_RefCount: 1
-    m_Data: {fileID: -1091605504, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: -2063869780, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   - m_RefCount: 1
-    m_Data: {fileID: -542589924, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: -460896022, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   - m_RefCount: 1
-    m_Data: {fileID: -1272160624, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: 797664071, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   - m_RefCount: 1
-    m_Data: {fileID: 1921806380, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: 573288548, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   m_TileMatrixArray:
   - m_RefCount: 8
     m_Data:
@@ -382,10 +382,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 620127518171141121}
-  - component: {fileID: 3982814450964155393}
-  - component: {fileID: 9069666470292117308}
-  - component: {fileID: 1779374119895772806}
-  - component: {fileID: 4099172976322545135}
   m_Layer: 0
   m_Name: Mine-Ghost
   m_TagString: Untagged
@@ -410,67 +406,6 @@ Transform:
   - {fileID: 2705311714483719180}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3982814450964155393
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3893002568888545927}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0b4e1897f7f7a8c41aaa200d3490043d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  autoOccupy: 1
-  includeTriggers: 0
-  gridManagerOverride: {fileID: 0}
---- !u!114 &9069666470292117308
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3893002568888545927}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de46449519519bc4ca61b59f8701c1ba, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  definitionId: 
---- !u!114 &1779374119895772806
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3893002568888545927}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e9bbedbcd8776eb4099a24b000053233, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  salvage:
-  - type: 0
-    amount: 2
-  - type: 1
-    amount: 2
---- !u!114 &4099172976322545135
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3893002568888545927}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f5f898028e4d28141a76e15bb69502bc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  headerIcon: {fileID: 108104044, guid: 0b0f55719f56e0748898fff1207d8532, type: 3}
-  headerTitle: Bitki
-  bodyContentKey: Building
-  contextTargetOverride: {fileID: 0}
 --- !u!1 &7442164228706889631
 GameObject:
   m_ObjectHideFlags: 0

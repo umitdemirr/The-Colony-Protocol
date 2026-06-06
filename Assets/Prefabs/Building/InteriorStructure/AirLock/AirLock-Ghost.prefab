@@ -513,9 +513,6 @@ GameObject:
   m_Component:
   - component: {fileID: 620127518171141121}
   - component: {fileID: 3982814450964155393}
-  - component: {fileID: 9069666470292117308}
-  - component: {fileID: 1779374119895772806}
-  - component: {fileID: 4099172976322545135}
   m_Layer: 0
   m_Name: AirLock-Ghost
   m_TagString: Untagged
@@ -555,52 +552,6 @@ MonoBehaviour:
   autoOccupy: 1
   includeTriggers: 0
   gridManagerOverride: {fileID: 0}
---- !u!114 &9069666470292117308
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3893002568888545927}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de46449519519bc4ca61b59f8701c1ba, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  definitionId: 
---- !u!114 &1779374119895772806
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3893002568888545927}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e9bbedbcd8776eb4099a24b000053233, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  salvage:
-  - type: 0
-    amount: 2
-  - type: 1
-    amount: 2
---- !u!114 &4099172976322545135
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3893002568888545927}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f5f898028e4d28141a76e15bb69502bc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  headerIcon: {fileID: 108104044, guid: 0b0f55719f56e0748898fff1207d8532, type: 3}
-  headerTitle: Bitki
-  bodyContentKey: Building
-  contextTargetOverride: {fileID: 0}
 --- !u!1 &7442164228706889631
 GameObject:
   m_ObjectHideFlags: 0

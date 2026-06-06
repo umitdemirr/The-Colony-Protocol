@@ -15,7 +15,7 @@ MonoBehaviour:
   displayName: Solar Panel
   saveId: 
   buildingPrefab: {fileID: 3893002568888545927, guid: f7b265e251193a541b8986880d907847, type: 3}
-  ghostPrefab: {fileID: 3893002568888545927, guid: e404e4e7675f19444b64f46866c70e32, type: 3}
+  ghostPrefab: {fileID: 3893002568888545927, guid: 19175e27b9df65e47be1914bfd1bf002, type: 3}
   buildCosts:
   - type: 0
     amount: 1
@@ -26,4 +26,7 @@ MonoBehaviour:
   energyProducerType: 1
   energyProductionBase: 0
   powerCollectorCapacity: 0
+  maxPlacementCount: 0
+  isExterior: 1
+  requiresAirlock: 1
   icon: {fileID: -171508749, guid: 3054a9969fa1777449ef57eced3836c3, type: 3}

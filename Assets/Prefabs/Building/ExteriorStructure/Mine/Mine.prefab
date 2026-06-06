@@ -242,46 +242,46 @@ Tilemap:
   - m_RefCount: 0
     m_Data: {fileID: 0}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 43e3ff4d73d0eb64683d453a29f8f2c3, type: 2}
+    m_Data: {fileID: 11400000, guid: aaee35f33ae366f49a933d6e333c8276, type: 2}
   - m_RefCount: 11
     m_Data: {fileID: 11400000, guid: db5454888e4390a49a75db6b44a4e10c, type: 2}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 231ce03f74f902341aff85b040f62cdb, type: 2}
+    m_Data: {fileID: 11400000, guid: bffab69e2e891274e83fe93509e8d564, type: 2}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 94c301fca2db3204a83bcfd3354c1a33, type: 2}
+    m_Data: {fileID: 11400000, guid: 2c1702f8d3164414ca23b80125983bcf, type: 2}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 0911915cc1503114c87e54b609b7bf53, type: 2}
+    m_Data: {fileID: 11400000, guid: 396acf221110acc4f95d50ef69100d6b, type: 2}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 8bbc30593c334e4448d5823e01091689, type: 2}
+    m_Data: {fileID: 11400000, guid: f8b5c3c212d16fc46bb434ef530e5748, type: 2}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 905d622b5d6c79e458add7b0343f8db9, type: 2}
+    m_Data: {fileID: 11400000, guid: 2f91185e5200d5444b066339c8f9e6a8, type: 2}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: c00b966c19fe9494893ebddd8b71f75a, type: 2}
+    m_Data: {fileID: 11400000, guid: f2337e0fe2e323746ad3e6fda9220174, type: 2}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 6ba7ed40d2d7c644f9807529f95f9356, type: 2}
+    m_Data: {fileID: 11400000, guid: c2445b01ae1b5ec4e9bcffe14f710812, type: 2}
   m_TileSpriteArray:
   - m_RefCount: 0
     m_Data: {fileID: 0}
   - m_RefCount: 0
     m_Data: {fileID: 0}
   - m_RefCount: 1
-    m_Data: {fileID: -2092398161, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: -1043165594, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   - m_RefCount: 11
     m_Data: {fileID: 1995769858, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
   - m_RefCount: 1
-    m_Data: {fileID: -752642038, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: 1951356340, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   - m_RefCount: 1
-    m_Data: {fileID: -1945366613, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: -916244703, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   - m_RefCount: 1
-    m_Data: {fileID: -2118315156, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: 918692827, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   - m_RefCount: 1
-    m_Data: {fileID: -1091605504, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: -2063869780, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   - m_RefCount: 1
-    m_Data: {fileID: -542589924, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: -460896022, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   - m_RefCount: 1
-    m_Data: {fileID: -1272160624, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: 797664071, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   - m_RefCount: 1
-    m_Data: {fileID: 1921806380, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: 573288548, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   m_TileMatrixArray:
   - m_RefCount: 19
     m_Data:
@@ -479,83 +479,20 @@ CompositeCollider2D:
   m_ColliderPaths:
   - m_Collider: {fileID: 6200866967918324210}
     m_ColliderPaths:
-    - - X: 9687500
-        Y: -3750000
-      - X: 10000000
-        Y: -3437500
-      - X: 10000000
-        Y: -3125000
-      - X: 11250000
-        Y: -3125000
-      - X: 13437500
-        Y: -1875000
-      - X: 14375000
-        Y: -1250000
-      - X: 15000000
-        Y: -625000
-      - X: 15000000
-        Y: 0
-      - X: 16250000
-        Y: 0
-      - X: 16875000
-        Y: 625000
-      - X: 16875000
-        Y: 5000000
-      - X: 13437500
+    - - X: 20000000
         Y: 10000000
-      - X: -11875000
+      - X: -20000000
         Y: 10000000
-      - X: -15625000
-        Y: 5000000
-      - X: -16250000
-        Y: 3125000
-      - X: -16250000
-        Y: 0
-      - X: -14375000
-        Y: 0
-      - X: -14375000
-        Y: -1250000
-      - X: -11875000
-        Y: -2500000
-      - X: -10000000
-        Y: -2500000
-      - X: -10000000
-        Y: -3125000
-      - X: -1250000
-        Y: -7500000
-      - X: 0
-        Y: -7500000
-      - X: 0
-        Y: -8125000
-      - X: 1250000
-        Y: -8125000
+      - X: -20000000
+        Y: -10000000
+      - X: 20000000
+        Y: -10000000
   m_CompositePaths:
     m_Paths:
-    - - {x: 0.96875, y: -0.375}
-      - {x: 1, y: -0.34375}
-      - {x: 1, y: -0.3125}
-      - {x: 1.125, y: -0.3125}
-      - {x: 1.34375, y: -0.1875}
-      - {x: 1.4375, y: -0.125}
-      - {x: 1.5, y: -0.0625}
-      - {x: 1.5, y: 0}
-      - {x: 1.625, y: 0}
-      - {x: 1.6875, y: 0.0625}
-      - {x: 1.6875, y: 0.5}
-      - {x: 1.34375, y: 1}
-      - {x: -1.1875, y: 1}
-      - {x: -1.5625, y: 0.5}
-      - {x: -1.625, y: 0.3125}
-      - {x: -1.625, y: 0}
-      - {x: -1.4375, y: 0}
-      - {x: -1.4375, y: -0.125}
-      - {x: -1.1875, y: -0.25}
-      - {x: -1, y: -0.25}
-      - {x: -1, y: -0.3125}
-      - {x: -0.125, y: -0.75}
-      - {x: 0, y: -0.75}
-      - {x: 0, y: -0.8125}
-      - {x: 0.125, y: -0.8125}
+    - - {x: 2, y: 1}
+      - {x: -2, y: 1}
+      - {x: -2, y: -1}
+      - {x: 2, y: -1}
   m_VertexDistance: 0.0005
   m_OffsetDistance: 0
   m_UseDelaunayMesh: 0
@@ -625,6 +562,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   definitionId: 
+  energyNeed: 0
+  energyProducerType: 0
+  energyProductionBase: 0
+  powerCollectorCapacity: 0
+  energyRamp01: 1
+  maxHealth: 100
+  currentHealth: 100
+  isOxygenProducer: 0
+  oxygenAmount: 0
+  oxygenCapacity: 0
+  oxygenProductionCurrent: 0
+  oxygenProductionCapacity: 0
 --- !u!114 &1779374119895772806
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -655,7 +604,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   headerIcon: {fileID: -1244366613, guid: 3054a9969fa1777449ef57eced3836c3, type: 3}
-  headerTitle: Bitki
+  headerTitle: Mine
   bodyContentKey: Building
   contextTargetOverride: {fileID: 0}
 --- !u!1 &7442164228706889631

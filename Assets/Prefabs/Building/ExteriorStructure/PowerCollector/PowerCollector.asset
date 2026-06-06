@@ -26,4 +26,7 @@ MonoBehaviour:
   energyProducerType: 0
   energyProductionBase: 0
   powerCollectorCapacity: 5000
+  maxPlacementCount: 0
+  isExterior: 1
+  requiredBuildings: []
   icon: {fileID: -1349696105, guid: 3054a9969fa1777449ef57eced3836c3, type: 3}

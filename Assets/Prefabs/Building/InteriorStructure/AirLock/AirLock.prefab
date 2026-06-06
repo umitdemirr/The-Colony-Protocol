@@ -428,7 +428,7 @@ TilemapCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_UsedByComposite: 1
   m_Offset: {x: 0, y: 0}
   m_MaximumTileChangeCount: 1000
   m_ExtrusionFactor: 0
@@ -496,9 +496,62 @@ CompositeCollider2D:
   m_GeometryType: 0
   m_GenerationType: 0
   m_EdgeRadius: 0
-  m_ColliderPaths: []
+  m_ColliderPaths:
+  - m_Collider: {fileID: 6200866967918324210}
+    m_ColliderPaths:
+    - - X: 25937500
+        Y: -45625000
+      - X: 26250000
+        Y: -45000000
+      - X: 26250000
+        Y: 17187500
+      - X: 25000000
+        Y: 18437500
+      - X: -35000000
+        Y: 18437500
+      - X: -36250000
+        Y: 17187500
+      - X: -36250000
+        Y: 0
+      - X: -30000000
+        Y: 0
+      - X: -30000000
+        Y: 10000000
+      - X: 20000000
+        Y: 10000000
+      - X: 20000000
+        Y: -40000000
+      - X: -30000000
+        Y: -40000000
+      - X: -30000000
+        Y: -30000000
+      - X: -36250000
+        Y: -30000000
+      - X: -36250000
+        Y: -45000000
+      - X: -34375000
+        Y: -46875000
+      - X: 24375000
+        Y: -46875000
   m_CompositePaths:
-    m_Paths: []
+    m_Paths:
+    - - {x: 2.59375, y: -4.5625}
+      - {x: 2.625, y: -4.5}
+      - {x: 2.625, y: 1.71875}
+      - {x: 2.5, y: 1.84375}
+      - {x: -3.5, y: 1.84375}
+      - {x: -3.625, y: 1.71875}
+      - {x: -3.625, y: 0}
+      - {x: -3, y: 0}
+      - {x: -3, y: 1}
+      - {x: 2, y: 1}
+      - {x: 2, y: -4}
+      - {x: -3, y: -4}
+      - {x: -3, y: -3}
+      - {x: -3.625, y: -3}
+      - {x: -3.625, y: -4.5}
+      - {x: -3.4375, y: -4.6875}
+      - {x: 2.4375, y: -4.6875}
   m_VertexDistance: 0.0005
   m_OffsetDistance: 0
   m_UseDelaunayMesh: 0
@@ -568,6 +621,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   definitionId: 
+  energyNeed: 1
+  energyProducerType: 0
+  energyProductionBase: 0
+  powerCollectorCapacity: 0
+  energyRamp01: 1
+  maxHealth: 100
+  currentHealth: 100
+  isOxygenProducer: 0
+  oxygenAmount: 0
+  oxygenCapacity: 0
+  oxygenProductionCurrent: 0
+  oxygenProductionCapacity: 0
 --- !u!114 &1779374119895772806
 MonoBehaviour:
   m_ObjectHideFlags: 0

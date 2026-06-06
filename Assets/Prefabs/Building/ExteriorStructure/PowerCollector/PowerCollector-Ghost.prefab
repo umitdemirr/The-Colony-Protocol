@@ -134,21 +134,21 @@ Tilemap:
   - m_RefCount: 0
     m_Data: {fileID: 0}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 5b2f881447b8bc54a9b01c6502f6cf38, type: 2}
+    m_Data: {fileID: 11400000, guid: da2de44ae43536245aefac0d7b7d1d8c, type: 2}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 56d0b1e5cf73dd742acdd58236cb2ef2, type: 2}
+    m_Data: {fileID: 11400000, guid: 0c03e8ad1fab7f445a1635a121690fd0, type: 2}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: eb38e9482fc508b4980ad6fee534deec, type: 2}
+    m_Data: {fileID: 11400000, guid: 2294c69a4ce6cf540b4862cc94eb6a7b, type: 2}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 78fdfc202aaa4eb4bb81f52ccb0577b6, type: 2}
+    m_Data: {fileID: 11400000, guid: ed9a3da2ad4da73449d358beb134503b, type: 2}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 9f95534ac1ba624488b58ff3e7b76795, type: 2}
+    m_Data: {fileID: 11400000, guid: 2702f8efc6a82cf498b7c590d2add1d8, type: 2}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 190e9f5ffc4643f4e835629586349dba, type: 2}
+    m_Data: {fileID: 11400000, guid: 27277abda19abb5489d2891a82782603, type: 2}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: f501a092132b6834a868966d0114f313, type: 2}
+    m_Data: {fileID: 11400000, guid: 2c7b9a12fa188944b916edb3f05b07dd, type: 2}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: eaeb5f839e465a041bcc789e8089f244, type: 2}
+    m_Data: {fileID: 11400000, guid: 05fb7ab46c88e9f4e93bb71b50f7be41, type: 2}
   m_TileSpriteArray:
   - m_RefCount: 0
     m_Data: {fileID: 0}
@@ -157,21 +157,21 @@ Tilemap:
   - m_RefCount: 0
     m_Data: {fileID: 0}
   - m_RefCount: 1
-    m_Data: {fileID: -98957867, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: 935363122, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   - m_RefCount: 1
-    m_Data: {fileID: 1453989122, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: -1654968471, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   - m_RefCount: 1
-    m_Data: {fileID: -2130767573, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: -1823390399, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   - m_RefCount: 1
-    m_Data: {fileID: -527072505, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: 192738308, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   - m_RefCount: 1
-    m_Data: {fileID: -321511750, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: -760602471, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   - m_RefCount: 1
-    m_Data: {fileID: 1877239287, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: 565450439, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   - m_RefCount: 1
-    m_Data: {fileID: -1372210977, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: -1069237490, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   - m_RefCount: 1
-    m_Data: {fileID: -1923654453, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: -1950933405, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   m_TileMatrixArray:
   - m_RefCount: 8
     m_Data:
@@ -383,9 +383,6 @@ GameObject:
   m_Component:
   - component: {fileID: 620127518171141121}
   - component: {fileID: 3982814450964155393}
-  - component: {fileID: 9069666470292117308}
-  - component: {fileID: 1779374119895772806}
-  - component: {fileID: 4099172976322545135}
   m_Layer: 0
   m_Name: PowerCollector-Ghost
   m_TagString: Untagged
@@ -425,52 +422,6 @@ MonoBehaviour:
   autoOccupy: 1
   includeTriggers: 0
   gridManagerOverride: {fileID: 0}
---- !u!114 &9069666470292117308
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3893002568888545927}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de46449519519bc4ca61b59f8701c1ba, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  definitionId: 
---- !u!114 &1779374119895772806
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3893002568888545927}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e9bbedbcd8776eb4099a24b000053233, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  salvage:
-  - type: 0
-    amount: 2
-  - type: 1
-    amount: 2
---- !u!114 &4099172976322545135
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3893002568888545927}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f5f898028e4d28141a76e15bb69502bc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  headerIcon: {fileID: 108104044, guid: 0b0f55719f56e0748898fff1207d8532, type: 3}
-  headerTitle: Bitki
-  bodyContentKey: Building
-  contextTargetOverride: {fileID: 0}
 --- !u!1 &7442164228706889631
 GameObject:
   m_ObjectHideFlags: 0

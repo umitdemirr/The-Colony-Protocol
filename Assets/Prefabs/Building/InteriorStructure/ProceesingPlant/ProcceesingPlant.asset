@@ -22,4 +22,22 @@ MonoBehaviour:
   - type: 1
     amount: 2
   salvageRatio: 0.5
+  energyNeed: 1
+  energyProducerType: 0
+  energyProductionBase: 0
+  powerCollectorCapacity: 0
+  maxHealth: 100
+  isWaterProducer: 0
+  waterProductionRate: 0
+  requiresWater: 0
+  waterConsumptionRate: 0
+  storesWater: 0
+  waterCapacity: 0
+  storesOxygen: 0
+  isOxygenProducer: 0
+  oxygenSupportCapacity: 0
+  maxPlacementCount: 0
+  isExterior: 0
+  requiredBuildings:
+  - {fileID: 11400000, guid: 79a46a797221f704cb6f5c168a0edca3, type: 2}
   icon: {fileID: -420250642, guid: b7605d42ed3d2c24f9aecdd0c937b191, type: 3}

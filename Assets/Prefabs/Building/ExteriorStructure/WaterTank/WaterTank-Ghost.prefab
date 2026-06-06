@@ -102,13 +102,13 @@ Tilemap:
   - m_RefCount: 0
     m_Data: {fileID: 0}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 40c81e03da4f1854f9f089910ff20403, type: 2}
+    m_Data: {fileID: 11400000, guid: 213f276ee8e1a9e4d884a2c2b40244b2, type: 2}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 713f2627fb1a0144192da522bc179b4f, type: 2}
+    m_Data: {fileID: 11400000, guid: 2ccce67c30bea5643b423b9b53b337ef, type: 2}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 370645636a234b9468453390951dbf08, type: 2}
+    m_Data: {fileID: 11400000, guid: 835fc586dd6bf6a41a0ddd43bc28bf01, type: 2}
   - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: d1666f41de23e7d449f9fb4521858156, type: 2}
+    m_Data: {fileID: 11400000, guid: 964b7a58c2a36f840a463816a490e7c5, type: 2}
   m_TileSpriteArray:
   - m_RefCount: 0
     m_Data: {fileID: 0}
@@ -125,13 +125,13 @@ Tilemap:
   - m_RefCount: 0
     m_Data: {fileID: 0}
   - m_RefCount: 1
-    m_Data: {fileID: -1057513610, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: 367732806, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   - m_RefCount: 1
-    m_Data: {fileID: 1938972856, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: 1962326843, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   - m_RefCount: 1
-    m_Data: {fileID: 722918839, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: 1333594271, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   - m_RefCount: 1
-    m_Data: {fileID: 703816161, guid: 078b5df713ced194698d09f6045ba85f, type: 3}
+    m_Data: {fileID: 201858391, guid: 7295501a1da38e4489d751175e75869d, type: 3}
   m_TileMatrixArray:
   - m_RefCount: 4
     m_Data:
@@ -343,9 +343,6 @@ GameObject:
   m_Component:
   - component: {fileID: 620127518171141121}
   - component: {fileID: 3982814450964155393}
-  - component: {fileID: 9069666470292117308}
-  - component: {fileID: 1779374119895772806}
-  - component: {fileID: 4099172976322545135}
   m_Layer: 0
   m_Name: WaterTank-Ghost
   m_TagString: Untagged
@@ -385,52 +382,6 @@ MonoBehaviour:
   autoOccupy: 1
   includeTriggers: 0
   gridManagerOverride: {fileID: 0}
---- !u!114 &9069666470292117308
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3893002568888545927}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de46449519519bc4ca61b59f8701c1ba, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  definitionId: 
---- !u!114 &1779374119895772806
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3893002568888545927}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e9bbedbcd8776eb4099a24b000053233, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  salvage:
-  - type: 0
-    amount: 2
-  - type: 1
-    amount: 2
---- !u!114 &4099172976322545135
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3893002568888545927}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f5f898028e4d28141a76e15bb69502bc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  headerIcon: {fileID: 108104044, guid: 0b0f55719f56e0748898fff1207d8532, type: 3}
-  headerTitle: Bitki
-  bodyContentKey: Building
-  contextTargetOverride: {fileID: 0}
 --- !u!1 &7442164228706889631
 GameObject:
   m_ObjectHideFlags: 0
