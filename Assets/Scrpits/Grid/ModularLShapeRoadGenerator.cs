@@ -3,9 +3,35 @@ using UnityEngine;
 
 public class ModularLShapeRoadGenerator : MonoBehaviour
 {
+    public static ModularLShapeRoadGenerator Instance { get; private set; }
+
+    void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this);
+            return;
+        }
+        Instance = this;
+        if (gridManager == null)
+            gridManager = FindObjectOfType<GridManager>();
+        
+        trimCellsFromStart = 1; // Reverted back to 1 to match the original gameplay road system!
+    }
+
+    [System.Serializable]
+    public class CommittedRoadData
+    {
+        public List<Vector3Int> pathCells = new List<Vector3Int>();
+        public bool usePipes;
+    }
+
+    public List<CommittedRoadData> committedRoads = new List<CommittedRoadData>();
+
     [Header("Grid")]
     [SerializeField] private Grid grid;
     public Grid WorldGrid => grid;
+    [SerializeField] private GridManager gridManager;
 
     [Header("Prefabs")]
     [SerializeField] private GameObject straightPrefab;
@@ -17,6 +43,21 @@ public class ModularLShapeRoadGenerator : MonoBehaviour
     [SerializeField] private GameObject endDownPrefab;
     [SerializeField] private GameObject endLeftPrefab;
     [SerializeField] private GameObject endRightPrefab;
+
+    [Header("Pipe Prefabs (Exterior Bağlantı)")]
+    [Tooltip("Exterior bina bağlantısı için yatay boru sprite'ı")]
+    [SerializeField] private GameObject pipeStraightHorizontalPrefab;
+    [Tooltip("Exterior bina bağlantısı için dikey boru sprite'ı")]
+    [SerializeField] private GameObject pipeStraightVerticalPrefab;
+    [Tooltip("Exterior bina bağlantısı için genel düz boru sprite'ı (fallback)")]
+    [SerializeField] private GameObject pipeStraightPrefab;
+    [Tooltip("Exterior bina bağlantısı için boru bitiş sprite'ı")]
+    [SerializeField] private GameObject pipeEndPrefab;
+    [Tooltip("Exterior bina bağlantısı için yönlü bitiş sprite'ları (opsiyonel)")]
+    [SerializeField] private GameObject pipeEndUpPrefab;
+    [SerializeField] private GameObject pipeEndDownPrefab;
+    [SerializeField] private GameObject pipeEndLeftPrefab;
+    [SerializeField] private GameObject pipeEndRightPrefab;
 
     [Header("Organization")]
     [SerializeField] private Transform roadsRoot;
@@ -37,14 +78,17 @@ public class ModularLShapeRoadGenerator : MonoBehaviour
 
     // ── Kalıcı yol verisi ──────────────────────────────────────
     public IReadOnlyList<Vector3Int> LastPath => _lastPath;
+    public bool LastPathUsedPipes => _lastUsedPipes;
     private readonly List<Vector3Int>                   _lastPath           = new();
     private readonly List<GameObject>                   _spawned            = new();
     private readonly HashSet<Vector3Int>                _cellsWithRoadPiece = new();
     private readonly Dictionary<Vector3Int, GameObject> _pieceByCell        = new();
     private int _roadGroupCounter;
+    private bool _lastUsedPipes;
 
     // ── Preview verisi ─────────────────────────────────────────
     public bool HasPreview => _previewGroup != null;
+    private readonly List<Vector3Int>                   _previewOriginalPath = new();
     private readonly List<Vector3Int>                   _previewLastPath    = new();
     private readonly List<GameObject>                   _previewSpawned     = new();
     private readonly HashSet<Vector3Int>                _previewCells       = new();
@@ -87,29 +131,68 @@ public class ModularLShapeRoadGenerator : MonoBehaviour
         _spawned.Clear();
         _cellsWithRoadPiece.Clear();
         _pieceByCell.Clear();
+        committedRoads.Clear();
+        _roadGroupCounter = 0;
+
+        Transform parent = ResolveSpawnParent();
+        if (parent != null)
+        {
+            var toDestroy = new List<GameObject>();
+            foreach (Transform t in parent)
+            {
+                if (t != null && t.name.StartsWith("Road_"))
+                {
+                    toDestroy.Add(t.gameObject);
+                }
+            }
+            foreach (var go in toDestroy)
+            {
+                if (go != null) go.SetActive(false); // Anında deaktif et!
+                Destroy(go);
+            }
+        }
     }
 
     public void GenerateRoad(Vector3Int start, Vector3Int end) => AddRoadSegment(BuildStraightPath(start, end));
 
-    public void AddRoadSegment(IReadOnlyList<Vector3Int> pathCells)
+    public void AddRoadSegment(IReadOnlyList<Vector3Int> pathCells, bool usePipes = false)
     {
         if (grid == null || pathCells == null || pathCells.Count == 0) return;
+
+        committedRoads.Add(new CommittedRoadData {
+            pathCells = new List<Vector3Int>(pathCells),
+            usePipes = usePipes
+        });
+
+        SpawnRoadInternal(pathCells, usePipes);
+    }
+
+    private void SpawnRoadInternal(IReadOnlyList<Vector3Int> pathCells, bool usePipes)
+    {
         _lastPath.Clear();
+        _lastUsedPipes = usePipes;
         for (int i = 0; i < pathCells.Count; i++) _lastPath.Add(pathCells[i]);
         TrimRenderPathDeterministic(_lastPath, trimCellsFromStart);
 
         Transform group = CreateRoadGroup(ResolveSpawnParent());
-        SpawnPieces(_lastPath, group, null, _spawned, _cellsWithRoadPiece, _pieceByCell);
+        SpawnPieces(_lastPath, group, null, _spawned, _cellsWithRoadPiece, _pieceByCell, usePipes);
     }
 
     // ──────────────────────────────────────────────────────────
     //  Preview API
     // ──────────────────────────────────────────────────────────
 
-    public void SpawnPreview(IReadOnlyList<Vector3Int> pathCells, Color previewColor)
+    private bool _previewUsePipes;
+
+    public void SpawnPreview(IReadOnlyList<Vector3Int> pathCells, Color previewColor, bool usePipes = false)
     {
         CancelPreview();
         if (grid == null || pathCells == null || pathCells.Count == 0) return;
+
+        _previewUsePipes = usePipes;
+
+        _previewOriginalPath.Clear();
+        _previewOriginalPath.AddRange(pathCells);
 
         _previewLastPath.Clear();
         for (int i = 0; i < pathCells.Count; i++) _previewLastPath.Add(pathCells[i]);
@@ -117,7 +200,7 @@ public class ModularLShapeRoadGenerator : MonoBehaviour
 
         _previewGroup = CreateRoadGroup(ResolveSpawnParent());
         _previewGroup.name += "_Preview";
-        SpawnPieces(_previewLastPath, _previewGroup, previewColor, _previewSpawned, _previewCells, _previewPieceByCell);
+        SpawnPieces(_previewLastPath, _previewGroup, previewColor, _previewSpawned, _previewCells, _previewPieceByCell, usePipes);
     }
 
     /// <summary>Preview'i kalıcı yola çevirir. LastPath güncellenir.</summary>
@@ -127,6 +210,12 @@ public class ModularLShapeRoadGenerator : MonoBehaviour
 
         _lastPath.Clear();
         _lastPath.AddRange(_previewLastPath);
+        _lastUsedPipes = _previewUsePipes;
+
+        committedRoads.Add(new CommittedRoadData {
+            pathCells = new List<Vector3Int>(_previewOriginalPath),
+            usePipes = _previewUsePipes
+        });
 
         foreach (var go in _previewSpawned)
             if (go != null) { ResetColor(go); _spawned.Add(go); }
@@ -140,6 +229,7 @@ public class ModularLShapeRoadGenerator : MonoBehaviour
         _previewCells.Clear();
         _previewPieceByCell.Clear();
         _previewLastPath.Clear();
+        _previewOriginalPath.Clear();
         _previewGroup = null;
     }
 
@@ -151,6 +241,7 @@ public class ModularLShapeRoadGenerator : MonoBehaviour
         _previewCells.Clear();
         _previewPieceByCell.Clear();
         _previewLastPath.Clear();
+        _previewOriginalPath.Clear();
         if (_previewGroup != null) { Destroy(_previewGroup.gameObject); _previewGroup = null; }
     }
 
@@ -161,7 +252,7 @@ public class ModularLShapeRoadGenerator : MonoBehaviour
     private void SpawnPieces(
         List<Vector3Int> path, Transform group, Color? colorOverride,
         List<GameObject> outSpawned, HashSet<Vector3Int> outCells,
-        Dictionary<Vector3Int, GameObject> outByCell)
+        Dictionary<Vector3Int, GameObject> outByCell, bool usePipes = false)
     {
         for (int i = 0; i < path.Count; i++)
         {
@@ -175,8 +266,8 @@ public class ModularLShapeRoadGenerator : MonoBehaviour
                 straightDir = outDir != Vector3Int.zero ? outDir : inDir;
 
             GameObject prefab = kind == RoadPieceKind.Straight
-                ? PickStraightPrefab(straightDir)
-                : PickEndPrefab(facingDir);
+                ? (usePipes ? PickPipeStraightPrefab(straightDir) : PickStraightPrefab(straightDir))
+                : (usePipes ? PickPipeEndPrefab(facingDir) : PickEndPrefab(facingDir));
             if (prefab == null) continue;
 
             if (outCells.Contains(cell))
@@ -262,6 +353,22 @@ public class ModularLShapeRoadGenerator : MonoBehaviour
         if (dir.x < 0 && endLeftPrefab  != null) return endLeftPrefab;
         if (dir.x > 0 && endRightPrefab != null) return endRightPrefab;
         return endPrefab;
+    }
+
+    private GameObject PickPipeStraightPrefab(Vector3Int dir)
+    {
+        if (dir.x != 0 && pipeStraightHorizontalPrefab != null) return pipeStraightHorizontalPrefab;
+        if (dir.y != 0 && pipeStraightVerticalPrefab   != null) return pipeStraightVerticalPrefab;
+        return pipeStraightPrefab != null ? pipeStraightPrefab : PickStraightPrefab(dir);
+    }
+
+    private GameObject PickPipeEndPrefab(Vector3Int dir)
+    {
+        if (dir.y > 0 && pipeEndUpPrefab    != null) return pipeEndUpPrefab;
+        if (dir.y < 0 && pipeEndDownPrefab  != null) return pipeEndDownPrefab;
+        if (dir.x < 0 && pipeEndLeftPrefab  != null) return pipeEndLeftPrefab;
+        if (dir.x > 0 && pipeEndRightPrefab != null) return pipeEndRightPrefab;
+        return pipeEndPrefab != null ? pipeEndPrefab : PickEndPrefab(dir);
     }
 
     // ──────────────────────────────────────────────────────────
@@ -389,6 +496,166 @@ public class ModularLShapeRoadGenerator : MonoBehaviour
         if (a.y != b.y) return a.y > b.y;
         if (a.x != b.x) return a.x > b.x;
         return a.z >= b.z;
+    }
+
+    // ──────────────────────────────────────────────────────────
+    //  Kayıttan Yükleme & Koridor Açma / Duvar Kırma
+    // ──────────────────────────────────────────────────────────
+
+    public void LoadFromSaveData(List<CommittedRoadData> savedRoads)
+    {
+        ClearAllRoads();
+        if (savedRoads == null) return;
+
+        // Koridor açmak için bina alanlarını topla
+        var allFootprints = new HashSet<Vector3Int>();
+        var interiorFootprints = new HashSet<Vector3Int>();
+        
+        if (gridManager != null)
+        {
+#if UNITY_2023_1_OR_NEWER
+            var placedBuildings = FindObjectsByType<PlacedBuilding>(FindObjectsSortMode.None);
+#else
+            var placedBuildings = FindObjectsOfType<PlacedBuilding>();
+#endif
+            foreach (var pb in placedBuildings)
+            {
+                if (pb == null || !pb.IsRealBuilding) continue;
+                var occ = pb.GetComponentInChildren<GridOccupier2D>(true);
+                if (occ != null)
+                {
+                    bool isExt = IsExteriorBuilding(pb);
+                    foreach (var c in occ.ComputeOccupiedCells(gridManager))
+                    {
+                        allFootprints.Add(c);
+                        if (!isExt)
+                            interiorFootprints.Add(c);
+                    }
+                }
+            }
+        }
+
+        foreach (var r in savedRoads)
+        {
+            if (r == null || r.pathCells == null || r.pathCells.Count == 0) continue;
+            
+            committedRoads.Add(new CommittedRoadData {
+                pathCells = new List<Vector3Int>(r.pathCells),
+                usePipes = r.usePipes
+            });
+
+            SpawnRoadInternal(r.pathCells, r.usePipes);
+            
+            // Grid'de koridoru aç
+            ForceOpenCorridorForRoad(r.pathCells, r.usePipes, allFootprints, interiorFootprints);
+
+            // Binaların bağlantı noktalarında duvarları kır
+            if (gridManager != null && grid != null && _lastPath.Count >= 2 && r.pathCells.Count >= 2)
+            {
+                Vector3Int untrimmedStart = r.pathCells[0];
+                Vector3Int untrimmedEnd = r.pathCells[r.pathCells.Count - 1];
+
+                Vector3Int startCell = _lastPath[0];
+                Vector3Int startNeighbor = _lastPath[1];
+                Vector3Int endCell = _lastPath[_lastPath.Count - 1];
+                Vector3Int endNeighbor = _lastPath[_lastPath.Count - 2];
+
+#if UNITY_2023_1_OR_NEWER
+                var placedBuildings = FindObjectsByType<PlacedBuilding>(FindObjectsSortMode.None);
+#else
+                var placedBuildings = FindObjectsOfType<PlacedBuilding>();
+#endif
+                foreach (var pb in placedBuildings)
+                {
+                    if (pb == null || !pb.IsRealBuilding) continue;
+                    var occ = pb.GetComponentInChildren<GridOccupier2D>(true);
+                    if (occ != null)
+                    {
+                        var footprint = occ.ComputeOccupiedCells(gridManager);
+                        if (footprint.Contains(untrimmedStart))
+                        {
+                            ClearWallsForRoadEndpoint(pb, startCell, startNeighbor, r.usePipes);
+                        }
+                        if (footprint.Contains(untrimmedEnd))
+                        {
+                            ClearWallsForRoadEndpoint(pb, endCell, endNeighbor, r.usePipes);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void ForceOpenCorridorForRoad(IReadOnlyList<Vector3Int> path, bool usePipes, HashSet<Vector3Int> allBuildingCells, HashSet<Vector3Int> interiorCells)
+    {
+        if (path == null || path.Count == 0 || gridManager == null) return;
+        
+        int width = 3; // Varsayılan koridor genişliği
+        int half = width / 2;
+        int last = path.Count - 1;
+        
+        for (int i = 0; i < path.Count; i++)
+        {
+            Vector3Int dir  = GetPathDirection(path, i);
+            Vector3Int perp = new Vector3Int(-dir.y, dir.x, 0);
+            bool atEndpoint = i == 0 || i == last;
+            for (int k = -half; k <= half; k++)
+            {
+                Vector3Int c = path[i] + perp * k;
+
+                // Boru bağlantısında interior bina hücrelerini delme (duvarlar korunsun)
+                if (usePipes && interiorCells != null && interiorCells.Contains(c))
+                    continue;
+
+                if (!atEndpoint && allBuildingCells != null && allBuildingCells.Contains(c))
+                    continue;
+
+                gridManager.ForceOpenCell(c);
+            }
+        }
+    }
+
+    private Vector3Int GetPathDirection(IReadOnlyList<Vector3Int> path, int i)
+    {
+        if (path.Count <= 1) return Vector3Int.right;
+        if (i == 0)              return NormalizeStep(path[1] - path[0]);
+        if (i == path.Count - 1) return NormalizeStep(path[i] - path[i - 1]);
+        return NormalizeStep(path[i + 1] - path[i]);
+    }
+
+    private void ClearWallsForRoadEndpoint(PlacedBuilding pb, Vector3Int endpoint, Vector3Int neighbor, bool usePipes)
+    {
+        if (pb == null || grid == null || gridManager == null) return;
+        
+        bool isExt = IsExteriorBuilding(pb);
+        if (usePipes && !isExt)
+        {
+            // Boru bağlantısında interior binanın duvarı kırılmaz
+            return;
+        }
+
+        BuildingRoadWallClearer.ClearWallsForRoadConnection(pb.gameObject, endpoint, neighbor, grid, gridManager);
+    }
+
+    private static bool IsExteriorBuilding(PlacedBuilding pb)
+    {
+        if (pb == null) return false;
+        
+        string objName = pb.gameObject.name.ToLower();
+        string defId = (pb.definitionId ?? "").ToLower();
+
+        if (objName.Contains("exterior") || objName.Contains("boru") || 
+            objName.Contains("pipe") || objName.Contains("out")) 
+            return true;
+
+        var tracker = BuildingPlacementTracker.Instance;
+        if (tracker != null)
+        {
+            var def = tracker.GetDefinition(pb.definitionId);
+            if (def != null && def.isExterior) return true;
+        }
+
+        return false;
     }
 
     private void OnDestroy() => ClearAllRoads();

@@ -4,9 +4,9 @@ using System.Collections.Generic;
 [DisallowMultipleComponent]
 public class BuildingSelectionHighlight : MonoBehaviour
 {
-    [SerializeField] Color outlineColor = new Color(1f, 0.98f, 0.3f, 1f);
-    [SerializeField] float outlinePadding = 0.2f;
-    [SerializeField] float lineWidth = 0.28f;
+    [SerializeField] Color outlineColor = new Color(1f, 1f, 0.55f, 0.85f);
+    [SerializeField] float outlinePadding = 0.06f;
+    [SerializeField] float lineWidth = 0.06f;
     [SerializeField] int sortingOrder = 12000;
     [SerializeField] float zOffsetToCamera = -0.45f;
 
@@ -52,8 +52,8 @@ public class BuildingSelectionHighlight : MonoBehaviour
         _line.endColor = outlineColor;
         _line.sortingLayerName = "Default";
         _line.sortingOrder = sortingOrder;
-        _line.numCornerVertices = 2;
-        _line.numCapVertices = 2;
+        _line.numCornerVertices = 4;
+        _line.numCapVertices = 4;
         _line.textureMode = LineTextureMode.Stretch;
         _line.widthMultiplier = 1f;
         _line.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;

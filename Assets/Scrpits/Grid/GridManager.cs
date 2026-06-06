@@ -3,6 +3,8 @@ using UnityEngine.Tilemaps;
 
 public class GridManager : MonoBehaviour
 {
+    public static GridManager Instance { get; private set; }
+
     [Header("Tilemaps")]
     public Tilemap visualTilemap;
     public Tilemap collisionTilemap;
@@ -10,6 +12,18 @@ public class GridManager : MonoBehaviour
     public GridNode[,] grid;
     private BoundsInt bounds;
     private readonly System.Collections.Generic.HashSet<Vector3Int> forcedOpenCells = new System.Collections.Generic.HashSet<Vector3Int>();
+
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else if (Instance != this)
+        {
+            Destroy(gameObject);
+        }
+    }
 
     void Start()
     {

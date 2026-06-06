@@ -11,7 +11,7 @@ public class PathfindingAStar2D : MonoBehaviour
     public Tilemap tilemap;
 
     [Header("Neighbors")]
-    public bool allowDiagonals = true;
+    public bool allowDiagonals = false;
 
     void Awake()
     {
@@ -34,6 +34,7 @@ public class PathfindingAStar2D : MonoBehaviour
         GridNode startNode = gridManager.GetNode(startCell);
         GridNode targetNode = gridManager.GetNode(targetCell);
         if (startNode == null || targetNode == null) return false;
+        // Başlangıç hücresinin isWalkable/isOccupied olmasını sorgulamıyoruz (sıkışan astronotların kaçabilmesi için)
         if (!targetNode.isWalkable || targetNode.isOccupied) return false;
 
         var openSet = new List<Vector3Int>();
@@ -50,14 +51,14 @@ public class PathfindingAStar2D : MonoBehaviour
         while (openSet.Count > 0)
         {
             Vector3Int current = openSet[0];
-            int currentF = GetG(gCost, current) + Heuristic(current, targetCell);
+            int currentF = GetG(gCost, current) + Heuristic(current, targetCell, useDiagonals);
 
             for (int i = 1; i < openSet.Count; i++)
             {
                 Vector3Int c = openSet[i];
-                int f = GetG(gCost, c) + Heuristic(c, targetCell);
-                int h = Heuristic(c, targetCell);
-                int bestH = Heuristic(current, targetCell);
+                int f = GetG(gCost, c) + Heuristic(c, targetCell, useDiagonals);
+                int h = Heuristic(c, targetCell, useDiagonals);
+                int bestH = Heuristic(current, targetCell, useDiagonals);
                 if (f < currentF || (f == currentF && h < bestH))
                 {
                     current = c;
@@ -78,6 +79,10 @@ public class PathfindingAStar2D : MonoBehaviour
             foreach (var neighbor in GetNeighbors(current, useDiagonals))
             {
                 if (closedSet.Contains(neighbor)) continue;
+
+                if (useDiagonals && IsDiagonalStep(current, neighbor) &&
+                    !CanTraverseDiagonal(gridManager, current, neighbor))
+                    continue;
 
                 GridNode nNode = gridManager.GetNode(neighbor);
                 if (nNode == null) continue;
@@ -121,10 +126,12 @@ public class PathfindingAStar2D : MonoBehaviour
         return gCost.TryGetValue(cell, out int v) ? v : int.MaxValue / 4;
     }
 
-    static int Heuristic(Vector3Int a, Vector3Int b)
+    static int Heuristic(Vector3Int a, Vector3Int b, bool diagonalsAllowed)
     {
         int dx = Mathf.Abs(a.x - b.x);
         int dy = Mathf.Abs(a.y - b.y);
+        if (!diagonalsAllowed)
+            return 10 * (dx + dy);
         int diag = Mathf.Min(dx, dy);
         int straight = Mathf.Abs(dx - dy);
         return 14 * diag + 10 * straight;
@@ -135,6 +142,30 @@ public class PathfindingAStar2D : MonoBehaviour
         int dx = Mathf.Abs(a.x - b.x);
         int dy = Mathf.Abs(a.y - b.y);
         return (dx == 1 && dy == 1) ? 14 : 10;
+    }
+
+    static bool IsDiagonalStep(Vector3Int from, Vector3Int to)
+    {
+        int dx = Mathf.Abs(to.x - from.x);
+        int dy = Mathf.Abs(to.y - from.y);
+        return dx == 1 && dy == 1;
+    }
+
+    /// <summary>
+    /// Çapraz adım; iki yan komşu hücre de geçilebilir olmalı (tek hücrelik koridorlarda duvar köşesinden sızmaz).
+    /// </summary>
+    static bool CanTraverseDiagonal(GridManager gm, Vector3Int from, Vector3Int to)
+    {
+        int sx = to.x > from.x ? 1 : (to.x < from.x ? -1 : 0);
+        int sy = to.y > from.y ? 1 : (to.y < from.y ? -1 : 0);
+        var sideA = new Vector3Int(from.x + sx, from.y, from.z);
+        var sideB = new Vector3Int(from.x, from.y + sy, from.z);
+        GridNode na = gm.GetNode(sideA);
+        GridNode nb = gm.GetNode(sideB);
+        if (na == null || nb == null) return false;
+        if (!na.isWalkable || na.isOccupied) return false;
+        if (!nb.isWalkable || nb.isOccupied) return false;
+        return true;
     }
 
     static List<Vector3Int> ReconstructPath(Dictionary<Vector3Int, Vector3Int> cameFrom, Vector3Int start, Vector3Int target)
@@ -149,6 +180,55 @@ public class PathfindingAStar2D : MonoBehaviour
         }
         path.Reverse();
         return path;
+    }
+
+    /// <summary>
+    /// Hedef hücre dolu veya yürünemez ise, spiral arama ile o hedefe en yakın yürünebilir/boş hücreyi bulur.
+    /// </summary>
+    public Vector3Int FindNearestWalkableCell(Vector3Int targetCell, Vector3Int startCell, int maxRadius = 12)
+    {
+        if (gridManager == null) return startCell;
+
+        GridNode baseNode = gridManager.GetNode(targetCell);
+        if (baseNode != null && baseNode.isWalkable && !baseNode.isOccupied)
+        {
+            return targetCell;
+        }
+
+        Vector3Int bestCell = startCell;
+        float bestDist = float.MaxValue;
+        bool foundAny = false;
+
+        for (int r = 1; r <= maxRadius; r++)
+        {
+            for (int x = -r; x <= r; x++)
+            {
+                for (int y = -r; y <= r; y++)
+                {
+                    if (Mathf.Abs(x) != r && Mathf.Abs(y) != r) continue;
+
+                    var candidate = new Vector3Int(targetCell.x + x, targetCell.y + y, 0);
+                    GridNode node = gridManager.GetNode(candidate);
+                    if (node != null && node.isWalkable && !node.isOccupied)
+                    {
+                        float dist = x * x + y * y;
+                        if (dist < bestDist)
+                        {
+                            bestDist = dist;
+                            bestCell = candidate;
+                            foundAny = true;
+                        }
+                    }
+                }
+            }
+
+            if (foundAny)
+            {
+                return bestCell;
+            }
+        }
+
+        return startCell;
     }
 }
 

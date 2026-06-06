@@ -9,6 +9,7 @@ public static class RoadBetweenBuildingsPath
 {
     static readonly Vector3Int[] Cardinal =
         { Vector3Int.right, Vector3Int.left, Vector3Int.up, Vector3Int.down };
+    const int AxisAlignmentToleranceCells = 1;
 
     // ──────────────────────────────────────────────────────────
     //  Ana yol bulma
@@ -29,44 +30,15 @@ public static class RoadBetweenBuildingsPath
         int ax = Mathf.RoundToInt(cA.x), ay = Mathf.RoundToInt(cA.y);
         int bx = Mathf.RoundToInt(cB.x), by = Mathf.RoundToInt(cB.y);
 
-        bool sameX = ax == bx;
-        bool sameY = ay == by;
-        if (!sameX && !sameY) return false; // eksen hizalı değil → yol kurulamaz
+        bool preferVertical = Mathf.Abs(ax - bx) <= AxisAlignmentToleranceCells;
+        bool preferHorizontal = Mathf.Abs(ay - by) <= AxisAlignmentToleranceCells;
 
-        Vector3Int dir = sameX
-            ? (by > ay ? Vector3Int.up : Vector3Int.down)
-            : (bx > ax ? Vector3Int.right : Vector3Int.left);
+        if (TryBuildStraightPath(footprintA, footprintB, allBuildingCells, cA, cB, preferVertical, out path))
+            return true;
+        if (TryBuildStraightPath(footprintA, footprintB, allBuildingCells, cA, cB, false, out path))
+            return true;
 
-        Vector3Int startConn = SelectFacingEdgeCenteredNonCornerBoundaryCell(footprintA, cB);
-        Vector3Int endConn   = SelectFacingEdgeCenteredNonCornerBoundaryCell(footprintB, cA);
-
-        // Bağlantı hücrelerinin aynı eksende olduğunu doğrula
-        if (sameX && startConn.x != endConn.x) return false;
-        if (sameY && startConn.y != endConn.y) return false;
-
-        // Çıkış hücrelerinin bina dışında olduğunu doğrula
-        if (footprintA.Contains(startConn + dir)) return false;
-        if (footprintB.Contains(endConn   - dir)) return false;
-
-        // Düz yolu inşa et: startConn → endConn
-        var full = new List<Vector3Int>();
-        if (sameX)
-        {
-            int x = startConn.x, dy = dir.y;
-            for (int y = startConn.y; y != endConn.y + dy; y += dy)
-                full.Add(new Vector3Int(x, y, startConn.z));
-        }
-        else
-        {
-            int y = startConn.y, dx = dir.x;
-            for (int x = startConn.x; x != endConn.x + dx; x += dx)
-                full.Add(new Vector3Int(x, y, startConn.z));
-        }
-
-        if (!ValidateFullPath(full, footprintA, footprintB, allBuildingCells)) return false;
-
-        path = full;
-        return true;
+        return false;
     }
 
     // ──────────────────────────────────────────────────────────
@@ -124,19 +96,25 @@ public static class RoadBetweenBuildingsPath
         }
         if (edgeCells.Count == 0) return SelectNonCornerBoundaryCell(footprint, targetCenter);
 
+        // Tam ortadaki hücreyi seç: bounds merkezine en yakın eksen değerine göre
+        float boundsCenter = horizontal
+            ? (minY + maxY) * 0.5f
+            : (minX + maxX) * 0.5f;
+
         edgeCells.Sort((a, b) =>
         {
-            int ka = horizontal ? a.y : a.x;
-            int kb = horizontal ? b.y : b.x;
-            return ka.CompareTo(kb);
+            float da = Mathf.Abs((horizontal ? a.y : a.x) - boundsCenter);
+            float db = Mathf.Abs((horizontal ? b.y : b.x) - boundsCenter);
+            return da.CompareTo(db);
         });
-        return edgeCells[edgeCells.Count / 2];
+        return edgeCells[0];
     }
 
     public static Vector3Int SelectCenteredBoundaryCell(HashSet<Vector3Int> footprint, Vector2 targetCenter)
     {
         if (footprint == null || footprint.Count == 0) return Vector3Int.zero;
 
+        GetBounds(footprint, out int minX, out int maxX, out int minY, out int maxY);
         Vector2 ownCenter = GetCenter(footprint);
         Vector2 delta = targetCenter - ownCenter;
         bool horizontal = Mathf.Abs(delta.x) >= Mathf.Abs(delta.y);
@@ -161,13 +139,18 @@ public static class RoadBetweenBuildingsPath
         }
         if (edgeCells.Count == 0) return GetAnyWithExit(footprint);
 
+        // Bounds merkezine en yakın hücreyi seç
+        float boundsCenter = horizontal
+            ? (minY + maxY) * 0.5f
+            : (minX + maxX) * 0.5f;
+
         edgeCells.Sort((a, b) =>
         {
-            int ka = horizontal ? a.y : a.x;
-            int kb = horizontal ? b.y : b.x;
-            return ka.CompareTo(kb);
+            float da = Mathf.Abs((horizontal ? a.y : a.x) - boundsCenter);
+            float db = Mathf.Abs((horizontal ? b.y : b.x) - boundsCenter);
+            return da.CompareTo(db);
         });
-        return edgeCells[edgeCells.Count / 2];
+        return edgeCells[0];
     }
 
     public static Vector3Int SelectNonCornerBoundaryCell(HashSet<Vector3Int> footprint, Vector2 targetCenter)
@@ -225,6 +208,125 @@ public static class RoadBetweenBuildingsPath
         int n = 0;
         foreach (var c in footprint) { sum += new Vector2(c.x, c.y); n++; }
         return n > 0 ? (sum / n) : Vector2.zero;
+    }
+
+    static bool TryBuildStraightPath(
+        HashSet<Vector3Int> footprintA,
+        HashSet<Vector3Int> footprintB,
+        HashSet<Vector3Int> allBuildingCells,
+        Vector2 centerA,
+        Vector2 centerB,
+        bool preferVertical,
+        out List<Vector3Int> path)
+    {
+        path = null;
+
+        var startCandidates = GetBoundaryCellsWithExit(footprintA, centerB);
+        var endCandidates = GetBoundaryCellsWithExit(footprintB, centerA);
+        if (startCandidates.Count == 0 || endCandidates.Count == 0) return false;
+
+        List<Vector3Int> bestPath = null;
+        int bestScore = int.MaxValue;
+
+        for (int i = 0; i < startCandidates.Count; i++)
+        {
+            Vector3Int startConn = startCandidates[i];
+            for (int j = 0; j < endCandidates.Count; j++)
+            {
+                Vector3Int endConn = endCandidates[j];
+
+                bool sameX = startConn.x == endConn.x;
+                bool sameY = startConn.y == endConn.y;
+                if (!sameX && !sameY) continue;
+
+                bool vertical = sameX;
+                if (preferVertical != vertical)
+                {
+                    int centerDx = Mathf.Abs(Mathf.RoundToInt(centerA.x) - Mathf.RoundToInt(centerB.x));
+                    int centerDy = Mathf.Abs(Mathf.RoundToInt(centerA.y) - Mathf.RoundToInt(centerB.y));
+                    if (preferVertical && centerDx > AxisAlignmentToleranceCells) continue;
+                    if (!preferVertical && centerDy > AxisAlignmentToleranceCells) continue;
+                }
+
+                Vector3Int dir = vertical
+                    ? (endConn.y > startConn.y ? Vector3Int.up : Vector3Int.down)
+                    : (endConn.x > startConn.x ? Vector3Int.right : Vector3Int.left);
+
+                if (footprintA.Contains(startConn + dir)) continue;
+                if (footprintB.Contains(endConn - dir)) continue;
+
+                var full = BuildStraightPath(startConn, endConn);
+                if (!ValidateFullPath(full, footprintA, footprintB, allBuildingCells)) continue;
+
+                // Skor: yol uzunluğu + merkezden sapma (ortadan geçen yolu tercih et)
+                GetBounds(footprintA, out int aMinX, out int aMaxX, out int aMinY, out int aMaxY);
+                GetBounds(footprintB, out int bMinX, out int bMaxX, out int bMinY, out int bMaxY);
+                float aCenterAxis = vertical ? (aMinY + aMaxY) * 0.5f : (aMinX + aMaxX) * 0.5f;
+                float bCenterAxis = vertical ? (bMinY + bMaxY) * 0.5f : (bMinX + bMaxX) * 0.5f;
+                float startDeviation = Mathf.Abs((vertical ? startConn.y : startConn.x) - aCenterAxis);
+                float endDeviation   = Mathf.Abs((vertical ? endConn.y : endConn.x) - bCenterAxis);
+
+                int score = full.Count + Mathf.RoundToInt((startDeviation + endDeviation) * 100);
+                if (preferVertical == vertical) score -= 100000;
+                if (score < bestScore)
+                {
+                    bestScore = score;
+                    bestPath = full;
+                }
+            }
+        }
+
+        path = bestPath;
+        return path != null;
+    }
+
+    static List<Vector3Int> GetBoundaryCellsWithExit(HashSet<Vector3Int> footprint, Vector2 targetCenter)
+    {
+        var cells = new List<Vector3Int>();
+        if (footprint == null || footprint.Count == 0) return cells;
+
+        foreach (var c in footprint)
+        {
+            if (!HasExitNeighbor(c, footprint)) continue;
+            cells.Add(c);
+        }
+
+        cells.Sort((a, b) =>
+        {
+            float da = Vector2.SqrMagnitude(new Vector2(a.x, a.y) - targetCenter);
+            float db = Vector2.SqrMagnitude(new Vector2(b.x, b.y) - targetCenter);
+            return da.CompareTo(db);
+        });
+
+        return cells;
+    }
+
+    static List<Vector3Int> BuildStraightPath(Vector3Int start, Vector3Int end)
+    {
+        var path = new List<Vector3Int>();
+        if (start == end)
+        {
+            path.Add(start);
+            return path;
+        }
+
+        if (start.x == end.x)
+        {
+            int stepY = end.y > start.y ? 1 : -1;
+            for (int y = start.y; y != end.y + stepY; y += stepY)
+                path.Add(new Vector3Int(start.x, y, start.z));
+            return path;
+        }
+
+        if (start.y == end.y)
+        {
+            int stepX = end.x > start.x ? 1 : -1;
+            for (int x = start.x; x != end.x + stepX; x += stepX)
+                path.Add(new Vector3Int(x, start.y, start.z));
+            return path;
+        }
+
+        return path;
     }
 
     static Vector3Int GetAnyWithExit(HashSet<Vector3Int> footprint)

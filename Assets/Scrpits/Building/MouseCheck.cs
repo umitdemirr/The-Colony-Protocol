@@ -116,7 +116,8 @@ public class MouseCheck : MonoBehaviour
         var inv = rm?.Inventory;
         bool canAfford = _currentDef != null && (inv != null && _currentDef.CanAfford(inv));
         bool hasConnectionPotential = HasConnectionPotentialCached(cellPos);
-        canPlace = canPlace && canAfford && hasConnectionPotential;
+        bool withinLimit = IsWithinPlacementLimit(_currentDef);
+        canPlace = canPlace && canAfford && hasConnectionPotential && withinLimit;
         SetGhostColor(canPlace ? Color.green : Color.red);
 
         if (Input.GetKeyDown(cancelBuildKey))
@@ -144,18 +145,13 @@ public class MouseCheck : MonoBehaviour
             {
                 _currentDef.ConsumeCost(rm.Inventory);
 
-                GameObject obj = Instantiate(buildingPrefab, placePos, Quaternion.Euler(0f, 0f, _currentRotation), buildingParent);
+                // Gerçek bina yerine, önce ghost prefabı (inşaat alanı) olarak dünya üstünde yaratıyoruz
+                GameObject obj = Instantiate(ghostPrefab != null ? ghostPrefab : buildingPrefab, placePos, Quaternion.Euler(0f, 0f, _currentRotation), buildingParent);
                 SnapPlacedBuildingToCell(obj, placePos);
 
-                // Tracker olmasa bile enerji sistemi üretim/tüketim verisini okuyabilsin.
-                var pb = obj.GetComponent<PlacedBuilding>();
-                if (pb == null) pb = obj.AddComponent<PlacedBuilding>();
-                pb.definitionId = _currentDef.GetSaveId();
-                pb.energyNeed = Mathf.Max(0, _currentDef.energyNeed);
-                pb.energyProducerType = _currentDef.energyProducerType;
-                pb.energyProductionBase = Mathf.Max(0f, _currentDef.energyProductionBase);
-                pb.powerCollectorCapacity = Mathf.Max(0, _currentDef.powerCollectorCapacity);
-                pb.energyRamp01 = 0f;
+                // GhostBuilding bileşenini ekle ve başlat
+                var gb = obj.AddComponent<GhostBuilding>();
+                gb.Initialize(_currentDef, placePos, Quaternion.Euler(0f, 0f, _currentRotation), buildingParent, gridManager, tilemap);
 
                 // Tek hücre yerine, prefabın collider bounds'ının kapladığı tüm hücreleri engel yap.
                 GridOccupier2D occ = obj.GetComponentInChildren<GridOccupier2D>(true);
@@ -170,8 +166,11 @@ public class MouseCheck : MonoBehaviour
                     gridManager.SetOccupied(cellPos, true, obj);
                 }
 
-                if (BuildingPlacementTracker.Instance != null && _currentDef != null)
-                    BuildingPlacementTracker.Instance.RegisterPlaced(obj, _currentDef);
+                // İnşaat yöneticisine bu ghost'u ekle
+                if (ConstructionManager.Instance != null)
+                {
+                    ConstructionManager.Instance.RegisterGhostBuilding(gb);
+                }
             }
         }
     }
@@ -493,5 +492,29 @@ public class MouseCheck : MonoBehaviour
         int bx = Mathf.RoundToInt(b.x);
         int by = Mathf.RoundToInt(b.y);
         return Mathf.Abs(ax - bx) + Mathf.Abs(ay - by);
+    }
+
+    /// <summary>
+    /// Yerleştirme limiti ve ön koşul kontrolü.
+    /// </summary>
+    static bool IsWithinPlacementLimit(BuildingDefinition def)
+    {
+        if (def == null) return false;
+
+        // Bağımlılık kontrolü (gerekli binalar sahada var mı?)
+        if (!def.AreDependenciesMet()) return false;
+
+        // Limit kontrolü (0 = sınırsız)
+        if (def.maxPlacementCount <= 0) return true;
+
+        string saveId = def.GetSaveId();
+        int count = 0;
+        var placed = FindObjectsByType<PlacedBuilding>(FindObjectsSortMode.None);
+        for (int i = 0; i < placed.Length; i++)
+        {
+            if (placed[i] != null && placed[i].definitionId == saveId)
+                count++;
+        }
+        return count < def.maxPlacementCount;
     }
 }

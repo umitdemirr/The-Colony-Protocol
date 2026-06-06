@@ -10,8 +10,9 @@ public static class WorldClickResolver
         if (hit.collider != null)
         {
             placedBuilding = hit.collider.GetComponentInParent<PlacedBuilding>();
-            if (placedBuilding != null)
+            if (placedBuilding != null && placedBuilding.IsRealBuilding)
                 return true;
+            placedBuilding = null;
         }
 
         PlacedBuilding[] all = Object.FindObjectsOfType<PlacedBuilding>();
@@ -19,7 +20,7 @@ public static class WorldClickResolver
         for (int i = 0; i < all.Length; i++)
         {
             PlacedBuilding pb = all[i];
-            if (pb == null || !pb.gameObject.activeInHierarchy) continue;
+            if (pb == null || !pb.gameObject.activeInHierarchy || !pb.IsRealBuilding) continue;
             if (!TryGetVisualBounds(pb.gameObject, out Bounds bounds)) continue;
             if (!BoundsContains2D(bounds, worldPos)) continue;
 

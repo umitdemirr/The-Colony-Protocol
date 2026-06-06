@@ -1,0 +1,21 @@
+---
+description: Yeni sistemler save/load ile uyumlu yazılmalı
+globs: Assets/Scrpits/**/*.cs
+alwaysApply: true
+---
+
+# Save Sistemi Uyumluluğu
+
+Yeni eklenen tüm sistemler/veriler, save sisteminden kaydedilebilecek ve yüklenebilecek şekilde tasarlanmalıdır.
+
+## Kurallar
+
+1. **Serializable veri**: Oyun durumunu temsil eden veriler `[Serializable]` class/struct olmalı ve `JsonUtility` ile serialize edilebilmeli (int, float, string, List, nested serializable).
+
+2. **GameSaveData genişletme**: Yeni sistem verisi için `GameSaveData`'ya alan ekle; ilgili `*SaveData` sınıfını tanımla.
+
+3. **ToSaveData / LoadFromSaveData**: Her sistem kendi verisini toplayan `CollectSaveData` veya `ToSaveData` ve yükleyen `LoadFromSaveData` metodlarına sahip olmalı.
+
+4. **SaveManager entegrasyonu**: `SaveManager.CollectSaveData` ve `ApplySaveData` içinde yeni sistemin kaydet/yükle çağrıları eklenmeli.
+
+5. **Benzersiz ID**: Dinamik nesneler (bina, NPC vb.) save/load için sabit `saveId` veya `id` tutmalı.
