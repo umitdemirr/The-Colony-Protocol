@@ -20,11 +20,21 @@ public class GlobalInfoCardClickRouter : MonoBehaviour
             ? Camera.main.ScreenToWorldPoint(Input.mousePosition)
             : Vector2.zero;
 
-        if (!WorldClickResolver.TryGetInfoCardInteractableAt(mousePos, out InfoCardInteractable interactable))
-            return;
+        bool hit = WorldClickResolver.TryGetInfoCardInteractableAt(mousePos, out InfoCardInteractable interactable);
+        Debug.Log($"[ClickRouter] Tıklama algılandı. Pozisyon: {mousePos}, Etkileşimli nesne bulundu mu: {hit}");
+
+        if (!hit) return;
+
+        Debug.Log($"[ClickRouter] Nesne ismi: {interactable.gameObject.name}, Arayüz Anahtarı: '{interactable.bodyContentKey}'");
 
         GameObject body = card.ResolveBody(interactable.bodyContentKey);
-        if (body == null) return;
+        Debug.Log($"[ClickRouter] Çözümlenen Panel (Body): {(body != null ? body.name : "NULL")}");
+
+        if (body == null)
+        {
+            Debug.LogWarning($"[ClickRouter] DİKKAT! '{interactable.bodyContentKey}' anahtarına sahip bir panel (body) GlobalInfoCardUI'de bulunamadı. Lütfen Inspector'dan eklediğinizden emin olun!");
+            return;
+        }
 
         card.Show(interactable.headerIcon, interactable.headerTitle, body, interactable.ResolveContextTarget());
     }

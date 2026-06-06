@@ -7,15 +7,37 @@ public class BuildingInfoCardStatusPresenter : MonoBehaviour, IInfoCardContextRe
     [Header("Saglik Satiri")]
     [SerializeField] Image healthIcon;
     [SerializeField] Slider healthProgress;
+    [SerializeField] Image healthFillImage;
     [SerializeField] TextMeshProUGUI healthValueText;
 
     [Header("O2/Uretim Satiri")]
     [SerializeField] Image oxygenIcon;
     [SerializeField] Slider oxygenProgress;
+    [SerializeField] Image oxygenFillImage;
     [SerializeField] TextMeshProUGUI oxygenValueText;
+
+    [Header("Dinamik İkonlar")]
+    [SerializeField] Sprite oxygenSprite;
+    [SerializeField] Sprite energySprite;
+    [SerializeField] Sprite waterSprite;
 
     GameObject _contextTarget;
     PlacedBuilding _placedBuilding;
+
+    void Start()
+    {
+        // Slider limitlerini koddan garanti altına alıyoruz (Editör ayarlarından bağımsız olması için)
+        if (healthProgress != null)
+        {
+            healthProgress.minValue = 0f;
+            healthProgress.maxValue = 1f;
+        }
+        if (oxygenProgress != null)
+        {
+            oxygenProgress.minValue = 0f;
+            oxygenProgress.maxValue = 1f;
+        }
+    }
 
     public void SetContextTarget(GameObject contextTarget)
     {
@@ -32,44 +54,112 @@ public class BuildingInfoCardStatusPresenter : MonoBehaviour, IInfoCardContextRe
 
     void RefreshUi()
     {
-        float health01 = _placedBuilding != null ? _placedBuilding.Health01 : 0f;
+        if (_placedBuilding == null) return;
+
+        // 1. Sağlık Satırı
+        float health01 = _placedBuilding.Health01;
         if (healthProgress != null)
             healthProgress.value = health01;
+        if (healthFillImage != null)
+            healthFillImage.fillAmount = health01;
         if (healthValueText != null)
-            healthValueText.text = _placedBuilding != null
-                ? $"{Mathf.Clamp(_placedBuilding.currentHealth, 0, _placedBuilding.maxHealth)}/{Mathf.Max(1, _placedBuilding.maxHealth)}"
-                : "0/0";
+            healthValueText.text = $"{Mathf.Clamp(_placedBuilding.currentHealth, 0, _placedBuilding.maxHealth)}/{Mathf.Max(1, _placedBuilding.maxHealth)} HP";
+        if (healthIcon != null) healthIcon.enabled = healthIcon.sprite != null;
 
-        float oxygen01 = _placedBuilding != null ? _placedBuilding.OxygenRow01 : 0f;
-        if (oxygenProgress != null)
-            oxygenProgress.value = oxygen01;
+        // 2. İkinci Satır: İç Mekan (O2) veya Dış Mekan (Üretim/Verimlilik)
+        float targetValue01 = 0f;
+        bool hasSecondRow = false;
 
-        if (oxygenValueText != null)
+        if (!_placedBuilding.isExterior)
         {
-            if (_placedBuilding == null)
-                oxygenValueText.text = "N/A";
+            // İç Mekan (Yaşam Alanı) -> Oksijen Seviyesi
+            hasSecondRow = true;
+            if (oxygenIcon != null && oxygenSprite != null)
+            {
+                oxygenIcon.sprite = oxygenSprite;
+                oxygenIcon.enabled = true;
+            }
+
+            float cap = _placedBuilding.oxygenCapacity;
+            targetValue01 = cap > 0f ? Mathf.Clamp01(_placedBuilding.oxygenAmount / cap) : 0f;
+
+            if (oxygenValueText != null)
+            {
+                oxygenValueText.text = _placedBuilding.oxygenAmount > 0f ? "Oksijen: GÜVENLİ" : "Oksijen: YETERSİZ!";
+            }
+        }
+        else
+        {
+            // Dış Mekan -> Üretici Verimliliği veya Üretim Hızı
+            if (_placedBuilding.isWaterProducer)
+            {
+                hasSecondRow = true;
+                if (oxygenIcon != null && waterSprite != null)
+                {
+                    oxygenIcon.sprite = waterSprite;
+                    oxygenIcon.enabled = true;
+                }
+                float prod = _placedBuilding.networkWaterProduction;
+                float cons = _placedBuilding.networkWaterConsumption;
+                targetValue01 = prod > 0f ? Mathf.Clamp01((prod - cons) / prod) : 0f;
+                if (oxygenValueText != null)
+                {
+                    oxygenValueText.text = $"{Mathf.RoundToInt(cons)}/{Mathf.RoundToInt(prod)} m³/s";
+                }
+            }
+            else if (_placedBuilding.energyProducerType != BuildingDefinition.EnergyProducerType.None)
+            {
+                hasSecondRow = true;
+                if (oxygenIcon != null && energySprite != null)
+                {
+                    oxygenIcon.sprite = energySprite;
+                    oxygenIcon.enabled = true;
+                }
+                float prod = _placedBuilding.networkEnergyProduction;
+                float cons = _placedBuilding.networkEnergyConsumption;
+                targetValue01 = prod > 0f ? Mathf.Clamp01((prod - cons) / prod) : 0f;
+                if (oxygenValueText != null)
+                {
+                    oxygenValueText.text = $"{Mathf.RoundToInt(cons)}/{Mathf.RoundToInt(prod)} kW";
+                }
+            }
             else if (_placedBuilding.isOxygenProducer)
             {
-                float cap = _placedBuilding.oxygenProductionCapacity;
-                oxygenValueText.text = cap > 0f
-                    ? $"{Mathf.RoundToInt(oxygen01 * 100f)}%"
-                    : "N/A";
+                hasSecondRow = true;
+                if (oxygenIcon != null && oxygenSprite != null)
+                {
+                    oxygenIcon.sprite = oxygenSprite;
+                    oxygenIcon.enabled = true;
+                }
+                targetValue01 = _placedBuilding.efficiency01;
+                if (oxygenValueText != null)
+                {
+                    oxygenValueText.text = $"{_placedBuilding.oxygenSupportCapacity} Kişilik Üretim (Planetbase)";
+                }
             }
             else
             {
-                float cap = _placedBuilding.oxygenCapacity;
-                oxygenValueText.text = cap > 0f
-                    ? $"{Mathf.RoundToInt(_placedBuilding.oxygenAmount)}/{Mathf.RoundToInt(cap)}"
-                    : "N/A";
+                // Genel Diğer Yapılar -> Genel Verimlilik
+                hasSecondRow = true;
+                if (oxygenIcon != null && energySprite != null)
+                {
+                    oxygenIcon.sprite = energySprite;
+                    oxygenIcon.enabled = true;
+                }
+                targetValue01 = _placedBuilding.efficiency01;
+                if (oxygenValueText != null)
+                {
+                    oxygenValueText.text = $"Verimlilik: {Mathf.RoundToInt(_placedBuilding.efficiency01 * 100f)}%";
+                }
             }
         }
 
-        if (healthIcon != null) healthIcon.enabled = healthIcon.sprite != null;
-        if (oxygenIcon != null)
-            oxygenIcon.enabled = oxygenIcon.sprite != null &&
-                                  _placedBuilding != null &&
-                                  (_placedBuilding.isOxygenProducer
-                                      ? _placedBuilding.oxygenProductionCapacity > 0f
-                                      : _placedBuilding.oxygenCapacity > 0f);
+        if (hasSecondRow)
+        {
+            if (oxygenProgress != null)
+                oxygenProgress.value = targetValue01;
+            if (oxygenFillImage != null)
+                oxygenFillImage.fillAmount = targetValue01;
+        }
     }
 }

@@ -31,6 +31,12 @@ public class RocketCargoGridContent : MonoBehaviour
     [SerializeField] Sprite iconMeal;
     [SerializeField] Sprite iconMedicalSupplies;
 
+    public Sprite IconMetal => iconMetal;
+    public Sprite IconBiyoplastik => iconBiyoplastik;
+    public Sprite IconSpares => iconSpares;
+    public Sprite IconMeal => iconMeal;
+    public Sprite IconMedicalSupplies => iconMedicalSupplies;
+
     [Header("Boş yuva")]
     [SerializeField] Sprite emptySlotIcon;
     [SerializeField] Color emptySlotTint = new Color(1f, 1f, 1f, 0.35f);

@@ -40,6 +40,11 @@ public class GlobalInfoCardUI : MonoBehaviour
     /// </summary>
     public GameObject ContextTarget => _contextTarget;
 
+    /// <summary>
+    /// Dinamik UI panellerinin ekleneceği içerik taşıyıcısı.
+    /// </summary>
+    public Transform BodyContainer => bodyContainer;
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -119,6 +124,12 @@ public class GlobalInfoCardUI : MonoBehaviour
             return null;
         string normalized = key.Trim();
         return _bodyByKey.TryGetValue(normalized, out var body) ? body : null;
+    }
+
+    public void RegisterDynamicBody(string key, GameObject body)
+    {
+        if (string.IsNullOrWhiteSpace(key)) return;
+        _bodyByKey[key.Trim()] = body;
     }
 
     public void Show(Sprite icon, string title, GameObject bodyToShow, GameObject contextTarget = null)

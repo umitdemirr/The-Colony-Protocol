@@ -78,6 +78,22 @@ public class PanelManager : MonoBehaviour
         DisableBuildModeUI();
     }
 
+    public void OpenPauseMenu()
+    {
+        if (PauseMenuController.Instance != null)
+        {
+            PauseMenuController.Instance.PauseGame();
+        }
+        else
+        {
+            var pm = FindFirstObjectByType<PauseMenuController>();
+            if (pm != null)
+            {
+                pm.PauseGame();
+            }
+        }
+    }
+
     void CloseAll()
     {
         interiorPanel.SetActive(false);
