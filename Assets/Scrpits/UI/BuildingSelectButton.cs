@@ -45,7 +45,6 @@ public class BuildingSelectButton : MonoBehaviour
             return;
         }
 
-        Debug.Log($"[BuildingSelectButton] Seçim: {building.displayName} (obj: {name})");
         mouseCheck.SetBuilding(building);
     }
 

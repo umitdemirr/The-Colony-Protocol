@@ -114,9 +114,6 @@ public class RoadFromBuildingClicks : MonoBehaviour
         bool endExt   = IsExteriorBuilding(_pendingEndPb);
         bool usePipes = startExt || endExt;
 
-        // Kritik Log: Neden pipe veya road seçildiğini Console'da görelim
-        Debug.Log($"<b>[RoadPath]</b> Önizleme: UsePipes={usePipes} | Start({_pendingStartPb.name})={startExt} | End({_pendingEndPb.name})={endExt}");
-
         if (roadGenerator != null)
         {
             roadGenerator.SpawnPreview(path, previewColor, usePipes);

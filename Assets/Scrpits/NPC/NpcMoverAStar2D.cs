@@ -100,17 +100,13 @@ public class NpcMoverAStar2D : MonoBehaviour
         }
 
         Vector3Int startCell = tilemap.WorldToCell(transform.position);
-        Debug.Log($"[NpcMoverAStar2D] '{gameObject.name}' yol aramaya başladı. Başlangıç: {startCell}, Hedef: {targetCell}");
 
         if (!PathfindingAStar2D.Instance.TryFindPath(startCell, targetCell, out var path, useDiagonals: false))
         {
-            Debug.Log($"[NpcMoverAStar2D] '{gameObject.name}' doğrudan hedef hücreye ({targetCell}) yol bulamadı. En yakın alternatif aranıyor...");
             Vector3Int nearestValid = PathfindingAStar2D.Instance.FindNearestWalkableCell(targetCell, startCell, maxRadius: 12);
-            Debug.Log($"[NpcMoverAStar2D] '{gameObject.name}' için bulunan en yakın yürünebilir hücre: {nearestValid}");
             if (nearestValid == startCell)
             {
                 path = new List<Vector3Int>();
-                Debug.Log($"[NpcMoverAStar2D] '{gameObject.name}' zaten en yakın noktada duruyor. Yürüme mesafesi 0.");
             }
             else if (!PathfindingAStar2D.Instance.TryFindPath(startCell, nearestValid, out path, useDiagonals: false))
             {
@@ -123,7 +119,6 @@ public class NpcMoverAStar2D : MonoBehaviour
         _index = 0;
         _moving = _cellPath.Count > 0;
         DidReachDestination = !_moving; // Yol 0 uzunluğunda ise zaten oradayız!
-        Debug.Log($"[NpcMoverAStar2D] '{gameObject.name}' için yol bulundu! Hücre sayısı: {_cellPath.Count}. Yürüme başladı mı: {_moving}");
         if (!_moving) SendMessage("OnMovementDestinationReached", SendMessageOptions.DontRequireReceiver);
         return true;
     }

@@ -48,7 +48,6 @@ public class AstronautStatsPresenter : MonoBehaviour, IInfoCardContextReceiver
     public void SetContextTarget(GameObject contextTarget)
     {
         _astronaut = contextTarget != null ? contextTarget.GetComponent<Astronaut>() : null;
-        Debug.Log($"[AstronautStatsPresenter] SetContextTarget tetiklendi. Hedef Obje: {(contextTarget != null ? contextTarget.name : "NULL")}, Astronot Bileşeni Bulundu mu: {_astronaut != null}");
         RefreshUI();
     }
 

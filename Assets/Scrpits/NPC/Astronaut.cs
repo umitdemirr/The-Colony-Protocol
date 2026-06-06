@@ -62,7 +62,6 @@ public class Astronaut : MonoBehaviour
         // ConstructionManager'a kendini kaydet
         if (ConstructionManager.Instance != null)
         {
-            Debug.Log($"[Astronaut] '{astronautName}' kendini ConstructionManager'a kaydediyor.");
             ConstructionManager.Instance.RegisterAstronaut(this);
         }
         else
@@ -378,8 +377,6 @@ public class Astronaut : MonoBehaviour
         var tilemap = PathfindingAStar2D.Instance != null ? PathfindingAStar2D.Instance.tilemap : _mover.tilemap;
         Vector3Int storageCell = tilemap != null ? tilemap.WorldToCell(storagePos) : Vector3Int.zero;
 
-        Debug.Log($"[Astronaut] '{astronautName}' görevi aldı: '{resource}' -> '{building.definition.displayName}'. Hedef Depo konumu: {storagePos} (hücre: {storageCell})");
-
         if (!_mover.MoveToCell(storageCell))
         {
             Debug.LogWarning($"[Astronaut] '{astronautName}' depoya ({storageCell}) yol bulamadığı için görev iptal edildi!");
@@ -405,8 +402,6 @@ public class Astronaut : MonoBehaviour
     // NpcMoverAStar2D hedefe ulaştığında tetiklenir
     void OnMovementDestinationReached()
     {
-        Debug.Log($"[Astronaut] '{astronautName}' hedefe ulaştı tetiklendi. Durum: {state}");
-
         if (state == AstronautState.MovingToStorage)
         {
             // Depoya ulaştık mı kontrol et (Mover'ın hedefe ulaşıp ulaşmadığına bak)
@@ -420,7 +415,6 @@ public class Astronaut : MonoBehaviour
             // Depoya geldik, kaynağı yüklendik
             isCarrying = true;
             state = AstronautState.MovingToConstructionSite;
-            Debug.Log($"[Astronaut] '{astronautName}' depodan '{carryingResource}' kaynağını başarıyla teslim aldı. Şimdi inşaat alanına ({currentTask.targetPosition}) gidiyor.");
 
             if (currentTask != null)
             {
@@ -458,7 +452,6 @@ public class Astronaut : MonoBehaviour
 
                 if (!currentTask.IsConstructed)
                 {
-                    Debug.Log($"[Astronaut] '{astronautName}' inşaat alanına ulaştı. '{carryingResource}' kaynağını başarıyla teslim etti!");
                     currentTask.DeliverResource(carryingResource, 1);
                 }
             }

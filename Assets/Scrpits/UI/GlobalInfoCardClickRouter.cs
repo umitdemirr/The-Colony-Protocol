@@ -21,14 +21,10 @@ public class GlobalInfoCardClickRouter : MonoBehaviour
             : Vector2.zero;
 
         bool hit = WorldClickResolver.TryGetInfoCardInteractableAt(mousePos, out InfoCardInteractable interactable);
-        Debug.Log($"[ClickRouter] Tıklama algılandı. Pozisyon: {mousePos}, Etkileşimli nesne bulundu mu: {hit}");
 
         if (!hit) return;
 
-        Debug.Log($"[ClickRouter] Nesne ismi: {interactable.gameObject.name}, Arayüz Anahtarı: '{interactable.bodyContentKey}'");
-
         GameObject body = card.ResolveBody(interactable.bodyContentKey);
-        Debug.Log($"[ClickRouter] Çözümlenen Panel (Body): {(body != null ? body.name : "NULL")}");
 
         if (body == null)
         {
