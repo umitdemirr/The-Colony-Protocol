@@ -54,72 +54,101 @@ public class BuildingSimulationSystem : MonoBehaviour
 
     void SimulateNetworks()
     {
-        if (GridManager.Instance == null || GridManager.Instance.visualTilemap == null) return;
+        if (GridManager.Instance == null) return;
 
-        var tilemap = GridManager.Instance.visualTilemap;
-        BoundsInt bounds = tilemap.cellBounds;
+        var allBuildings = FindObjectsByType<PlacedBuilding>(FindObjectsSortMode.None);
+        var roadCells = ModularLShapeRoadGenerator.Instance != null 
+            ? ModularLShapeRoadGenerator.Instance.GetAllRoadAndPipeCells() 
+            : new HashSet<Vector3Int>();
+
+        // 1. TÜM SİMÜLASYON HÜCRELERİNİ VE BİNALARI HARİTALANDIR
+        Dictionary<Vector3Int, PlacedBuilding> cellToBuilding = new Dictionary<Vector3Int, PlacedBuilding>();
+        HashSet<Vector3Int> simulationCells = new HashSet<Vector3Int>(roadCells);
+
+        foreach (var pb in allBuildings)
+        {
+            if (pb == null) continue;
+
+            if (pb.IsRealBuilding)
+            {
+                var occ = pb.GetComponentInChildren<GridOccupier2D>(true);
+                if (occ != null)
+                {
+                    var footprint = occ.ComputeOccupiedCells(GridManager.Instance);
+                    foreach (var cell in footprint)
+                    {
+                        cellToBuilding[cell] = pb;
+                        simulationCells.Add(cell);
+                    }
+                }
+                else
+                {
+                    // Fallback: GridOccupier yoksa merkez hücresini kullan
+                    Vector3Int rootCell = GridManager.Instance.visualTilemap.WorldToCell(pb.transform.position);
+                    cellToBuilding[rootCell] = pb;
+                    simulationCells.Add(rootCell);
+                }
+            }
+            else
+            {
+                // Yol/boru parçalarının hücrelerini de simülasyon ağında yürümek için ekle
+                Vector3Int rootCell = GridManager.Instance.visualTilemap.WorldToCell(pb.transform.position);
+                simulationCells.Add(rootCell);
+            }
+        }
 
         HashSet<Vector3Int> visited = new HashSet<Vector3Int>();
         List<List<PlacedBuilding>> networks = new List<List<PlacedBuilding>>();
 
-        // 1. GRID ÜZERİNDE BFS İLE BİRBİRİNE BAĞLI AĞLARI TESPİT ET
-        for (int x = bounds.xMin; x < bounds.xMax; x++)
+        // 2. TÜM HÜCRELER ÜZERİNDEN BFS İLE BAĞLI ADALARI BUL
+        foreach (var startCell in simulationCells)
         {
-            for (int y = bounds.yMin; y < bounds.yMax; y++)
+            if (visited.Contains(startCell)) continue;
+
+            // Yeni bir ağ dalı bulduk
+            List<PlacedBuilding> networkBuildings = new List<PlacedBuilding>();
+            HashSet<GameObject> addedInThisNetwork = new HashSet<GameObject>();
+
+            Queue<Vector3Int> queue = new Queue<Vector3Int>();
+            queue.Enqueue(startCell);
+            visited.Add(startCell);
+
+            while (queue.Count > 0)
             {
-                Vector3Int cell = new Vector3Int(x, y, 0);
-                if (visited.Contains(cell)) continue;
+                Vector3Int currCell = queue.Dequeue();
 
-                var node = GridManager.Instance.GetNode(cell);
-                if (node != null && node.placedObject != null)
+                // Eğer bu hücrede bir bina varsa ağa ekle
+                if (cellToBuilding.TryGetValue(currCell, out var pb))
                 {
-                    // Yeni bir ağ dalı bulduk, BFS başlat
-                    List<PlacedBuilding> networkBuildings = new List<PlacedBuilding>();
-                    HashSet<GameObject> addedObjects = new HashSet<GameObject>();
-
-                    Queue<Vector3Int> queue = new Queue<Vector3Int>();
-                    queue.Enqueue(cell);
-                    visited.Add(cell);
-
-                    while (queue.Count > 0)
+                    if (pb != null && !addedInThisNetwork.Contains(pb.gameObject))
                     {
-                        Vector3Int currCell = queue.Dequeue();
-                        var currNode = GridManager.Instance.GetNode(currCell);
-                        if (currNode != null && currNode.placedObject != null)
-                        {
-                            var pb = currNode.placedObject.GetComponentInParent<PlacedBuilding>();
-                            if (pb != null && !addedObjects.Contains(pb.gameObject))
-                            {
-                                networkBuildings.Add(pb);
-                                addedObjects.Add(pb.gameObject);
-                            }
-                        }
-
-                        // 4 yönlü komşuları kontrol et (Yukarı, Aşağı, Sol, Sağ)
-                        Vector3Int[] neighbors = new Vector3Int[] {
-                            new Vector3Int(currCell.x + 1, currCell.y, 0),
-                            new Vector3Int(currCell.x - 1, currCell.y, 0),
-                            new Vector3Int(currCell.x, currCell.y + 1, 0),
-                            new Vector3Int(currCell.x, currCell.y - 1, 0)
-                        };
-
-                        foreach (var nb in neighbors)
-                        {
-                            if (visited.Contains(nb)) continue;
-                            var nbNode = GridManager.Instance.GetNode(nb);
-                            if (nbNode != null && nbNode.placedObject != null)
-                            {
-                                queue.Enqueue(nb);
-                                visited.Add(nb);
-                            }
-                        }
-                    }
-
-                    if (networkBuildings.Count > 0)
-                    {
-                        networks.Add(networkBuildings);
+                        networkBuildings.Add(pb);
+                        addedInThisNetwork.Add(pb.gameObject);
                     }
                 }
+
+                // 4 yönlü komşuları kontrol et
+                Vector3Int[] neighbors = new Vector3Int[] {
+                    currCell + Vector3Int.right,
+                    currCell + Vector3Int.left,
+                    currCell + Vector3Int.up,
+                    currCell + Vector3Int.down
+                };
+
+                foreach (var nb in neighbors)
+                {
+                    if (visited.Contains(nb)) continue;
+                    if (simulationCells.Contains(nb))
+                    {
+                        queue.Enqueue(nb);
+                        visited.Add(nb);
+                    }
+                }
+            }
+
+            if (networkBuildings.Count > 0)
+            {
+                networks.Add(networkBuildings);
             }
         }
 
@@ -127,10 +156,10 @@ public class BuildingSimulationSystem : MonoBehaviour
         globalWaterProduction = 0f;
         globalWaterConsumption = 0f;
 
-        // Oksijen tüketim talebi için toplam astronot sayısını bul
-        int totalAstronauts = FindObjectsByType<Astronaut>(FindObjectsSortMode.None).Length;
-
         // 2. HER BİR BAĞLI AĞ ADASINI KENDİ İÇİNDE SİMÜLE ET
+        var allAstronauts = FindObjectsByType<Astronaut>(FindObjectsSortMode.None);
+        var tilemap = GridManager.Instance.visualTilemap;
+
         foreach (var network in networks)
         {
             float netEnergyProduction = 0f;
@@ -140,8 +169,28 @@ public class BuildingSimulationSystem : MonoBehaviour
 
             float totalWaterProduction = 0f;
             float totalWaterConsumption = 0f;
+            float totalStoredWater = 0f;
+            float totalWaterCapacity = 0f;
 
             int networkO2SupportCapacity = 0; // Planetbase tipi kişi desteği kapasitesi
+
+            // Bu ağdaki astronot sayısını bul (Binaların yakınındaki astronotlar)
+            int astronautsInNetwork = 0;
+            foreach (var astro in allAstronauts)
+            {
+                if (astro == null) continue;
+                // Astronotun bastığı hücredeki binayı bul
+                Vector3Int astroCell = tilemap.WorldToCell(astro.transform.position);
+                var node = GridManager.Instance.GetNode(astroCell);
+                if (node != null && node.placedObject != null)
+                {
+                    var pb = node.placedObject.GetComponentInParent<PlacedBuilding>();
+                    if (pb != null && network.Contains(pb))
+                    {
+                        astronautsInNetwork++;
+                    }
+                }
+            }
 
             float sun = DayNightCycleController.Instance != null ? DayNightCycleController.Instance.GetSunStrength01() : 1f;
             int windSpeedMs = EnergyProductionSystem.Instance != null ? EnergyProductionSystem.Instance.CurrentWindSpeedMs : 20;
@@ -177,6 +226,9 @@ public class BuildingSimulationSystem : MonoBehaviour
                 {
                     totalWaterConsumption += pb.waterConsumptionRate;
                 }
+
+                totalStoredWater += pb.waterAmount;
+                totalWaterCapacity += pb.waterCapacity;
             }
 
             globalWaterProduction += totalWaterProduction;
@@ -208,9 +260,35 @@ public class BuildingSimulationSystem : MonoBehaviour
                 }
             }
 
+            // Su Tüketimlerini ve Depolarını Uygula
+            float waterFlow = (totalWaterProduction - totalWaterConsumption) * tickSeconds;
+            if (waterFlow >= 0f)
+            {
+                totalStoredWater = Mathf.Min(totalWaterCapacity, totalStoredWater + waterFlow);
+            }
+            else
+            {
+                float deficit = -waterFlow;
+                float drawn = Mathf.Min(totalStoredWater, deficit);
+                totalStoredWater -= drawn;
+            }
+
+            // Suyu bağlı depolara dengeli şekilde geri dağıt
+            if (totalWaterCapacity > 0f)
+            {
+                float ratio = totalStoredWater / totalWaterCapacity;
+                foreach (var pb in network)
+                {
+                    if (pb != null && pb.waterCapacity > 0)
+                    {
+                        pb.waterAmount = pb.waterCapacity * ratio;
+                    }
+                }
+            }
+
             // Şebekede güç/su var mı tespit et
             bool hasPower = (netEnergyProduction >= netEnergyConsumption) || (totalStoredEnergy > 0f);
-            bool hasWater = totalWaterProduction >= totalWaterConsumption;
+            bool hasWater = (totalWaterProduction >= totalWaterConsumption) || (totalStoredWater > 0f);
 
             // C. Oksijen Üreticilerinin Çalışma Verimliliğini Hesapla
             foreach (var pb in network)
@@ -247,7 +325,36 @@ public class BuildingSimulationSystem : MonoBehaviour
 
             // D. Yaşam Alanlarındaki (Interior) Oksijen Miktarını Simüle Et (Planetbase Tipi)
             // Ağdaki toplam oksijen üretici kapasitesi toplam insan nüfusunu destekliyorsa oksijen vardır!
-            bool hasOxygen = networkO2SupportCapacity > 0 && networkO2SupportCapacity >= totalAstronauts;
+            float o2ChangeRate = -15f; // Varsayılan düşüş hızı (Havasızlık)
+
+            if (networkO2SupportCapacity > 0)
+            {
+                if (astronautsInNetwork <= 0)
+                {
+                    // Kimse yoksa ama üretim varsa hızlıca dolar
+                    o2ChangeRate = 15f;
+                }
+                else
+                {
+                    // Kapasite / Astronot oranı
+                    float ratio = (float)networkO2SupportCapacity / astronautsInNetwork;
+                    if (ratio >= 1f)
+                    {
+                        // Tam kapasite veya fazlası: Oksijen artar
+                        o2ChangeRate = 15f;
+                    }
+                    else if (ratio > 0.5f)
+                    {
+                        // %50-%100 arası: Yavaş düşüş (Yetersiz ama tamamen yok değil)
+                        o2ChangeRate = -5f;
+                    }
+                    else
+                    {
+                        // %50'den az: Hızlı düşüş
+                        o2ChangeRate = -12f;
+                    }
+                }
+            }
 
             foreach (var pb in network)
             {
@@ -255,7 +362,7 @@ public class BuildingSimulationSystem : MonoBehaviour
 
                 if (!pb.isExterior && pb.storesOxygen)
                 {
-                    pb.oxygenAmount = hasOxygen ? 100f : 0f;
+                    pb.oxygenAmount = Mathf.Clamp(pb.oxygenAmount + o2ChangeRate * tickSeconds, 0f, 100f);
                 }
 
                 // Ağ bazlı toplam elektrik/su üretim/tüketim verilerini gözlemlemek için binalara yaz

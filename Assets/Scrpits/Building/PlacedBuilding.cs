@@ -59,7 +59,7 @@ public class PlacedBuilding : MonoBehaviour
     public bool storesOxygen = false;
     public bool isOxygenProducer = false;
     [Min(0f)] public float oxygenAmount = 0f;
-    [Min(0f)] public float oxygenCapacity = 0f;
+    [Min(0f)] public float oxygenCapacity = 100f;
     [Min(0f)] public float oxygenProductionCurrent = 0f;
     [Min(0f)] public float oxygenProductionCapacity = 0f;
     public int oxygenSupportCapacity = 0;

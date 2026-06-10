@@ -9,18 +9,13 @@ using UnityEngine.UI;
 /// </summary>
 public class RoadFromBuildingClicks : MonoBehaviour
 {
-    const int AxisAlignmentToleranceCells = 1;
+
 
     [SerializeField] private ModularLShapeRoadGenerator roadGenerator;
     [SerializeField] private GridManager gridManager;
     [SerializeField] private Camera cam;
     [SerializeField] private MouseCheck mouseCheck;
     [Min(1)][SerializeField] private int corridorWidthCells = 3;
-
-    [Header("Road Constraints")]
-    [Min(1)][SerializeField] private int minCenterManhattanDistance = 3;
-    [Min(1)][SerializeField] private int maxCenterManhattanDistance = 200;
-    [Min(0)][SerializeField] private int minGapBetweenFootprints    = 1;
 
     [Header("Preview")]
     [SerializeField] private Color previewColor = new Color(1f, 0.85f, 0f, 0.75f);
@@ -94,11 +89,20 @@ public class RoadFromBuildingClicks : MonoBehaviour
         var fb  = GetFootprint(pb.gameObject);
         var all = CollectAllBuildingFootprints();
 
-        if (!PassesConstraints(fa, fb)) { ResetSelection(); return; }
+        // Footprint boşsa bağlantı kurulamaz
+        if (fa.Count == 0 || fb.Count == 0)
+        {
+            Debug.LogWarning("[Road] Footprint boş — GridOccupier2D eksik veya gridManager null.");
+            ResetSelection();
+            return;
+        }
+
+        bool extA = IsExteriorBuilding(_selectingBuilding);
+        bool extB = IsExteriorBuilding(pb);
 
         if (!RoadBetweenBuildingsPath.TryFindPath(fa, fb, all, out var path))
         {
-            Debug.LogWarning("[RoadFromBuildingClicks] Eksen hizalı düz yol bulunamadı.");
+            Debug.LogWarning($"[Road] Düz yol bulunamadı — binalar aynı satır/sütunda hizalı sınır hücresi paylaşmıyor. A='{_selectingBuilding.gameObject.name}' B='{pb.gameObject.name}'");
             ResetSelection();
             return;
         }
@@ -123,39 +127,7 @@ public class RoadFromBuildingClicks : MonoBehaviour
 
     static bool IsExteriorBuilding(PlacedBuilding pb)
     {
-        if (pb == null) return false;
-        
-        string objName = pb.gameObject.name.ToLower();
-        string defId = (pb.definitionId ?? "").ToLower();
-
-        // 1. KURAL: İsimde anahtar kelime geçiyor mu? (En garantisi)
-        if (objName.Contains("exterior") || objName.Contains("boru") || 
-            objName.Contains("pipe") || objName.Contains("out")) 
-            return true;
-
-        // 2. KURAL: Definition Asset'e bak
-        var tracker = BuildingPlacementTracker.Instance;
-        if (tracker != null)
-        {
-            var def = tracker.GetDefinition(pb.definitionId);
-            if (def != null && def.isExterior) return true;
-        }
-
-        // 3. KURAL: Sahnedeki tüm tanımları tara
-        var buttons = Object.FindObjectsByType<BuildingSelectButton>(FindObjectsSortMode.None);
-        foreach (var btn in buttons)
-        {
-            if (btn == null || btn.building == null) continue;
-            string bName = btn.building.displayName.ToLower();
-            string bSaveId = btn.building.GetSaveId().ToLower();
-
-            if (defId == bSaveId || objName.Contains(bName) || objName.Contains(btn.building.name.ToLower()))
-            {
-                if (btn.building.isExterior) return true;
-            }
-        }
-
-        return false;
+        return pb != null && pb.isExterior;
     }
 
     // ──────────────────────────────────────────────────────────
@@ -254,58 +226,48 @@ public class RoadFromBuildingClicks : MonoBehaviour
     }
 
     // ──────────────────────────────────────────────────────────
-    //  Kısıt kontrolü
-    // ──────────────────────────────────────────────────────────
-
-    bool PassesConstraints(HashSet<Vector3Int> fa, HashSet<Vector3Int> fb)
-    {
-        Vector2 cA = RoadBetweenBuildingsPath.GetCenter(fa);
-        Vector2 cB = RoadBetweenBuildingsPath.GetCenter(fb);
-        int ax = Mathf.RoundToInt(cA.x), ay = Mathf.RoundToInt(cA.y);
-        int bx = Mathf.RoundToInt(cB.x), by = Mathf.RoundToInt(cB.y);
-
-        if (Mathf.Abs(ax - bx) > AxisAlignmentToleranceCells &&
-            Mathf.Abs(ay - by) > AxisAlignmentToleranceCells)
-            return false; // eksen hizalaması 1 hucre toleransla zorunlu
-
-        int centerDist = Mathf.Abs(ax - bx) + Mathf.Abs(ay - by);
-        if (centerDist < minCenterManhattanDistance) return false;
-        if (centerDist > maxCenterManhattanDistance) return false;
-
-        if (ComputeManhattanGap(fa, fb) < minGapBetweenFootprints) return false;
-
-        return true;
-    }
-
-    // ──────────────────────────────────────────────────────────
     //  Yardımcılar
     // ──────────────────────────────────────────────────────────
-
-    static int ComputeManhattanGap(HashSet<Vector3Int> fa, HashSet<Vector3Int> fb)
-    {
-        int best = int.MaxValue;
-        foreach (var a in fa)
-            foreach (var b in fb)
-            {
-                int d = Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y) - 1;
-                if (d < best) best = d;
-            }
-        return Mathf.Max(0, best);
-    }
 
     HashSet<Vector3Int> GetFootprint(GameObject buildingRoot)
     {
         var occ = buildingRoot.GetComponentInChildren<GridOccupier2D>(true);
-        return occ != null ? occ.ComputeOccupiedCells(gridManager) : new HashSet<Vector3Int>();
+        if (occ != null)
+        {
+            return occ.ComputeOccupiedCells(gridManager);
+        }
+        else
+        {
+            var set = new HashSet<Vector3Int>();
+            if (gridManager != null && gridManager.visualTilemap != null)
+            {
+                Vector3Int cell = gridManager.visualTilemap.WorldToCell(buildingRoot.transform.position);
+                set.Add(cell);
+            }
+            return set;
+        }
     }
 
     HashSet<Vector3Int> CollectAllBuildingFootprints()
     {
         var set = new HashSet<Vector3Int>();
-        foreach (var occ in FindObjectsOfType<GridOccupier2D>())
+        var placedBuildings = Object.FindObjectsByType<PlacedBuilding>(FindObjectsSortMode.None);
+        foreach (var pb in placedBuildings)
         {
-            if (occ == null) continue;
-            foreach (var c in occ.ComputeOccupiedCells(gridManager)) set.Add(c);
+            if (pb == null || !pb.IsRealBuilding) continue;
+            var occ = pb.GetComponentInChildren<GridOccupier2D>(true);
+            if (occ != null)
+            {
+                foreach (var c in occ.ComputeOccupiedCells(gridManager)) set.Add(c);
+            }
+            else
+            {
+                if (gridManager != null && gridManager.visualTilemap != null)
+                {
+                    Vector3Int cell = gridManager.visualTilemap.WorldToCell(pb.transform.position);
+                    set.Add(cell);
+                }
+            }
         }
         return set;
     }

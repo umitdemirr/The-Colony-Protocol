@@ -644,23 +644,30 @@ public class ModularLShapeRoadGenerator : MonoBehaviour
 
     private static bool IsExteriorBuilding(PlacedBuilding pb)
     {
-        if (pb == null) return false;
-        
-        string objName = pb.gameObject.name.ToLower();
-        string defId = (pb.definitionId ?? "").ToLower();
+        return pb != null && pb.isExterior;
+    }
 
-        if (objName.Contains("exterior") || objName.Contains("boru") || 
-            objName.Contains("pipe") || objName.Contains("out")) 
-            return true;
-
-        var tracker = BuildingPlacementTracker.Instance;
-        if (tracker != null)
+    /// <summary>
+    /// Tüm yerleştirilmiş yol ve boru hücrelerini döndürür.
+    /// </summary>
+    public HashSet<Vector3Int> GetAllRoadAndPipeCells()
+    {
+        var cells = new HashSet<Vector3Int>();
+        if (committedRoads != null)
         {
-            var def = tracker.GetDefinition(pb.definitionId);
-            if (def != null && def.isExterior) return true;
+            for (int i = 0; i < committedRoads.Count; i++)
+            {
+                var road = committedRoads[i];
+                if (road != null && road.pathCells != null)
+                {
+                    for (int j = 0; j < road.pathCells.Count; j++)
+                    {
+                        cells.Add(road.pathCells[j]);
+                    }
+                }
+            }
         }
-
-        return false;
+        return cells;
     }
 
     private void OnDestroy() => ClearAllRoads();

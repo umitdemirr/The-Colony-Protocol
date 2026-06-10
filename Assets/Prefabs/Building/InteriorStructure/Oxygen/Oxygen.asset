@@ -35,7 +35,7 @@ MonoBehaviour:
   waterCapacity: 0
   storesOxygen: 0
   isOxygenProducer: 1
-  oxygenSupportCapacity: 0
+  oxygenSupportCapacity: 8
   maxPlacementCount: 0
   isExterior: 0
   requiredBuildings: []

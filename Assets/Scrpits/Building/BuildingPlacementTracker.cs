@@ -92,11 +92,11 @@ public class BuildingPlacementTracker : MonoBehaviour
 
         pb.isExterior = def.isExterior;
         pb.isOxygenProducer = def.isOxygenProducer;
-        pb.storesOxygen = def.storesOxygen;
+        pb.storesOxygen = !def.isExterior; // Tüm iç mekan binaları oksijen barındırır
         pb.oxygenCapacity = 100f; // Planetbase tipi sabit
         pb.oxygenAmount = pb.storesOxygen ? 100f : 0f;
-        pb.oxygenSupportCapacity = def.oxygenSupportCapacity;
-        pb.oxygenProductionCapacity = def.oxygenSupportCapacity;
+        pb.oxygenSupportCapacity = def.isOxygenProducer && def.oxygenSupportCapacity <= 0 ? 15 : def.oxygenSupportCapacity;
+        pb.oxygenProductionCapacity = pb.oxygenSupportCapacity;
         pb.oxygenProductionCurrent = 0f;
 
         pb.isWaterProducer = def.isWaterProducer;
@@ -237,11 +237,11 @@ public class BuildingPlacementTracker : MonoBehaviour
             // Yeni ve eski statların yüklenmesi
             pb.isExterior = def.isExterior;
             pb.isOxygenProducer = d.isOxygenProducer;
-            pb.storesOxygen = def.storesOxygen;
+            pb.storesOxygen = !def.isExterior;
             pb.oxygenAmount = Mathf.Max(0f, d.oxygenAmount);
             pb.oxygenCapacity = 100f; // Planetbase tipi sabit
-            pb.oxygenSupportCapacity = def.oxygenSupportCapacity;
-            pb.oxygenProductionCapacity = def.oxygenSupportCapacity;
+            pb.oxygenSupportCapacity = def.isOxygenProducer && def.oxygenSupportCapacity <= 0 ? 15 : def.oxygenSupportCapacity;
+            pb.oxygenProductionCapacity = pb.oxygenSupportCapacity;
             pb.oxygenProductionCurrent = Mathf.Max(0f, d.oxygenProductionCurrent);
 
             pb.isWaterProducer = def.isWaterProducer;

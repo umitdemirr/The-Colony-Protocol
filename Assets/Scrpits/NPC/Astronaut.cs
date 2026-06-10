@@ -37,6 +37,11 @@ public class Astronaut : MonoBehaviour
     public ResourceType carryingResource;
     public bool isCarrying = false;
 
+    [Header("Idle Davranışı (Idle Behavior)")]
+    public float minIdleWaitTime = 5f;
+    public float maxIdleWaitTime = 15f;
+    private float _idleTimer = 0f;
+
     private NpcMoverAStar2D _mover;
     private NPCAnimator4Dir _animator;
     private Text _uiText;
@@ -202,6 +207,7 @@ public class Astronaut : MonoBehaviour
     {
         UpdateNeedsAndStats();
         UpdateUI();
+        UpdateIdleBehavior();
     }
 
     private void UpdateNeedsAndStats()
@@ -462,6 +468,140 @@ public class Astronaut : MonoBehaviour
             isCarrying = false;
             state = AstronautState.Idle;
         }
+    }
+
+    private void UpdateIdleBehavior()
+    {
+        if (state != AstronautState.Idle || health <= 0f)
+        {
+            return;
+        }
+
+        // Eğer şu an bir yere yürüyor ise hareketin bitmesini bekleyelim
+        if (_mover != null && _mover.IsMoving)
+        {
+            return;
+        }
+
+        // Dışarıda kalıp kalmadığını kontrol et
+        bool isOutside = true;
+        var placedBuildings = FindObjectsByType<PlacedBuilding>(FindObjectsSortMode.None);
+        if (placedBuildings != null)
+        {
+            foreach (var pb in placedBuildings)
+            {
+                if (pb != null && !pb.isExterior && pb.IsRealBuilding)
+                {
+                    if (Vector3.Distance(transform.position, pb.transform.position) <= 3.0f)
+                    {
+                        isOutside = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Dışarıda durmama mekanizması: Eğer dışarıdaysa bekleme süresini en fazla 2 saniye yap
+        if (isOutside && _idleTimer > 2f)
+        {
+            _idleTimer = 2f;
+        }
+
+        // Zamanlayıcıyı güncelle
+        _idleTimer -= Time.deltaTime;
+        if (_idleTimer > 0f) return;
+
+        // Zamanlayıcı bittiğinde yeni bir karar al!
+        _idleTimer = Random.Range(minIdleWaitTime, maxIdleWaitTime);
+
+        PlacedBuilding targetBuilding = FindBestIdleBuilding(placedBuildings);
+        if (targetBuilding != null)
+        {
+            Vector3Int startCell = _mover.tilemap.WorldToCell(transform.position);
+            Vector3Int targetCenterCell = _mover.tilemap.WorldToCell(targetBuilding.transform.position);
+            
+            // Binanın kendisi veya en yakın yürünebilir hücresini bul
+            Vector3Int targetCell = PathfindingAStar2D.Instance != null 
+                ? PathfindingAStar2D.Instance.FindNearestWalkableCell(targetCenterCell, startCell, maxRadius: 10)
+                : targetCenterCell;
+
+            if (targetCell != startCell)
+            {
+                // Hedefe yürümeyi başlat
+                _mover.MoveToCell(targetCell);
+            }
+        }
+    }
+
+    private PlacedBuilding FindBestIdleBuilding(PlacedBuilding[] placedBuildings)
+    {
+        if (placedBuildings == null || placedBuildings.Length == 0) return null;
+
+        PlacedBuilding bestBuilding = null;
+        float bestScore = float.MinValue;
+
+        // İhtiyaçları kontrol et
+        bool needsO2 = oxygen < 45f;
+        bool needsFood = food < 40f;
+        bool needsWater = water < 40f;
+        bool needsMedic = health < 50f;
+
+        foreach (var pb in placedBuildings)
+        {
+            if (pb == null || !pb.IsRealBuilding) continue;
+
+            float score = 0f;
+            float dist = Vector3.Distance(transform.position, pb.transform.position);
+            
+            // Mesafe cezası (uzak binalara gitmeyi daha az tercih et)
+            score -= dist * 0.1f;
+
+            string defId = pb.definitionId.ToLowerInvariant();
+            string goName = pb.gameObject.name.ToLowerInvariant();
+
+            bool isCanteen = defId.Contains("canteen") || goName.Contains("canteen");
+            bool isWater = defId.Contains("extractor") || goName.Contains("extractor") || defId.Contains("water") || goName.Contains("water");
+            bool isMedic = defId.Contains("medic") || goName.Contains("medic");
+            bool isInterior = !pb.isExterior;
+
+            if (needsMedic && isMedic)
+            {
+                score += 500f;
+            }
+            if (needsFood && isCanteen)
+            {
+                score += 400f;
+            }
+            if (needsWater && (isWater || isCanteen))
+            {
+                score += 300f;
+            }
+            if (needsO2 && isInterior && pb.storesOxygen && pb.oxygenAmount > 20f)
+            {
+                score += 200f;
+            }
+
+            // Dışarıda durmama kuralı: İç mekan binaları çok daha cazip
+            if (isInterior)
+            {
+                score += 50f;
+            }
+            else
+            {
+                score -= 100f;
+            }
+
+            // Küçük bir rastgelelik ekle (çeşitlilik olsun)
+            score += Random.Range(-10f, 10f);
+
+            if (score > bestScore)
+            {
+                bestScore = score;
+                bestBuilding = pb;
+            }
+        }
+
+        return bestBuilding;
     }
 }
 

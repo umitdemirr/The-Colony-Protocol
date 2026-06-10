@@ -31,7 +31,6 @@ public static class RoadBetweenBuildingsPath
         int bx = Mathf.RoundToInt(cB.x), by = Mathf.RoundToInt(cB.y);
 
         bool preferVertical = Mathf.Abs(ax - bx) <= AxisAlignmentToleranceCells;
-        bool preferHorizontal = Mathf.Abs(ay - by) <= AxisAlignmentToleranceCells;
 
         if (TryBuildStraightPath(footprintA, footprintB, allBuildingCells, cA, cB, preferVertical, out path))
             return true;
@@ -40,6 +39,7 @@ public static class RoadBetweenBuildingsPath
 
         return false;
     }
+
 
     // ──────────────────────────────────────────────────────────
     //  Doğrulama
@@ -240,13 +240,8 @@ public static class RoadBetweenBuildingsPath
                 if (!sameX && !sameY) continue;
 
                 bool vertical = sameX;
-                if (preferVertical != vertical)
-                {
-                    int centerDx = Mathf.Abs(Mathf.RoundToInt(centerA.x) - Mathf.RoundToInt(centerB.x));
-                    int centerDy = Mathf.Abs(Mathf.RoundToInt(centerA.y) - Mathf.RoundToInt(centerB.y));
-                    if (preferVertical && centerDx > AxisAlignmentToleranceCells) continue;
-                    if (!preferVertical && centerDy > AxisAlignmentToleranceCells) continue;
-                }
+                // preferVertical sadece eşit derecede iyi adaylar arasında sıralama yapar;
+                // sameX/sameY zaten düz yolu garanti ettiğinden burada ek merkez filtresi koymuyoruz.
 
                 Vector3Int dir = vertical
                     ? (endConn.y > startConn.y ? Vector3Int.up : Vector3Int.down)
