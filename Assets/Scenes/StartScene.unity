@@ -1409,7 +1409,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -5, y: 0}
+  m_AnchoredPosition: {x: -5.000061, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &316680456
@@ -2005,7 +2005,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 459559587}
   m_Enabled: 1
-  m_Alpha: 0
+  m_Alpha: 1
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
@@ -2024,20 +2024,10 @@ MonoBehaviour:
   canvasGroup: {fileID: 459559589}
   progressBar: {fileID: 882084193}
   progressText: {fileID: 791148223}
-  statusText: {fileID: 0}
+  loadingProgressGroup: {fileID: 0}
   pressAnyKeyText: {fileID: 1241547009}
-  loadingMessages:
-  - INITIALIZING LIFE SUPPORT SYSTEMS...
-  - CALIBRATING SOLAR PANEL ARRAYS...
-  - GENERATING COLONY GRID...
-  - PURIFYING WATER FILTRATION TANKS...
-  - COMMISSIONING SHUTTLE BAY PROTOCOLS...
-  - ESTABLISHING COMMS LINK WITH EARTH...
-  - WARMING UP BIO-DOME HEAT EXCHANGERS...
-  - SCANNING SURFACE REGOLITH FOR MINERALS...
-  - PREPARING NPC ROSTERS...
-  messageCycleInterval: 1.5
   fadeSpeed: 2
+  smoothProgressSpeed: 1.2
 --- !u!114 &459559591
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3851,7 +3841,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 0}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 12
+  m_MaxValue: 1
   m_WholeNumbers: 0
   m_Value: 0
   m_OnValueChanged:

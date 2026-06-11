@@ -50,6 +50,13 @@ public class ConstructionManager : MonoBehaviour
             return;
         }
         _instance = this;
+
+        // Ignore physics collisions between NPC layer (layer 3) and Default layer (layer 0)
+        // so that astronauts can walk right up to/into buildings without getting blocked by physics colliders.
+        Physics2D.IgnoreLayerCollision(3, 0, true);
+
+        // Also ignore NPC-to-NPC collision to prevent characters from pushing each other or getting stuck
+        Physics2D.IgnoreLayerCollision(3, 3, true);
     }
 
     void OnDestroy()

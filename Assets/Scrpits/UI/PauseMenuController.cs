@@ -228,7 +228,11 @@ public class PauseMenuController : MonoBehaviour
         if (SaveManager.Instance != null)
             SaveManager.Instance.Save("colony_autosave.json");
 
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
         Application.Quit();
+#endif
     }
 
     // ─────────────────────────── UI FEEDBACK ───────────────────────────

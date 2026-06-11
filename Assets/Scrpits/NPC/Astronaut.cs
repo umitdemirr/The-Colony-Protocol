@@ -64,6 +64,13 @@ public class Astronaut : MonoBehaviour
     {
         InitializeIfNeeded();
 
+        // Make the collider a trigger so physics collision doesn't block pathfinding movement
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null)
+        {
+            col.isTrigger = true;
+        }
+
         // ConstructionManager'a kendini kaydet
         if (ConstructionManager.Instance != null)
         {
