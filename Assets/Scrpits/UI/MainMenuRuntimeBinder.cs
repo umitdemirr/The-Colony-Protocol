@@ -118,7 +118,14 @@ public class MainMenuRuntimeBinder : MonoBehaviour
         if (SaveManager.Instance != null)
             SaveManager.Instance.PendingLoadFileName = "";
 
-        SceneManager.LoadScene(gameplaySceneName);
+        if (LoadingScreenManager.Instance != null)
+        {
+            LoadingScreenManager.Instance.LoadSceneAsync(gameplaySceneName);
+        }
+        else
+        {
+            SceneManager.LoadScene(gameplaySceneName);
+        }
     }
 
     void OnContinueClicked()
@@ -131,7 +138,15 @@ public class MainMenuRuntimeBinder : MonoBehaviour
         if (latest == null) return;
 
         SaveManager.Instance.PendingLoadFileName = latest.Value.fileName;
-        SceneManager.LoadScene(gameplaySceneName);
+
+        if (LoadingScreenManager.Instance != null)
+        {
+            LoadingScreenManager.Instance.LoadSceneAsync(gameplaySceneName);
+        }
+        else
+        {
+            SceneManager.LoadScene(gameplaySceneName);
+        }
     }
 
     void OnLoadGameClicked()

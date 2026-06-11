@@ -233,7 +233,15 @@ public class SaveLoadPanelUI : MonoBehaviour
         if (activeScene == "StartScene")
         {
             SaveManager.Instance.PendingLoadFileName = _pendingLoadFileName;
-            SceneManager.LoadScene(gameplaySceneName);
+
+            if (LoadingScreenManager.Instance != null)
+            {
+                LoadingScreenManager.Instance.LoadSceneAsync(gameplaySceneName);
+            }
+            else
+            {
+                SceneManager.LoadScene(gameplaySceneName);
+            }
         }
         else
         {
