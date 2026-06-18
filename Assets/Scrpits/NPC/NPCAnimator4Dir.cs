@@ -22,8 +22,8 @@ public class NPCAnimator4Dir : MonoBehaviour
 
     void Awake()
     {
-        if (animator == null) animator = GetComponent<Animator>();
-        if (mover == null) mover = GetComponent<NpcMoverAStar2D>();
+        if (animator == null) animator = GetComponent<Animator>() ?? GetComponentInChildren<Animator>() ?? GetComponentInParent<Animator>();
+        if (mover == null) mover = GetComponent<NpcMoverAStar2D>() ?? GetComponentInChildren<NpcMoverAStar2D>() ?? GetComponentInParent<NpcMoverAStar2D>();
     }
 
     void LateUpdate()

@@ -78,7 +78,7 @@ SpriteRenderer:
   m_SortingLayerID: 895530263
   m_SortingLayer: 5
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: b8d0fc98f4ecacd4aba45f16d448b061, type: 3}
+  m_Sprite: {fileID: -690887175, guid: 83bc5c7b0ec2e304f87c388ce515681f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -164,7 +164,7 @@ Animator:
   m_GameObject: {fileID: 7070737129898749295}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 932503ab9e8f74c4bb182633a8336fd6, type: 2}
+  m_Controller: {fileID: 9100000, guid: 9515ec3d6aa9f8d4ba8c2816f9f94db4, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -204,7 +204,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5f898028e4d28141a76e15bb69502bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  headerIcon: {fileID: 21300000, guid: b8d0fc98f4ecacd4aba45f16d448b061, type: 3}
+  headerIcon: {fileID: -690887175, guid: 83bc5c7b0ec2e304f87c388ce515681f, type: 3}
   headerTitle: Astronot
   bodyContentKey: NPC
   contextTargetOverride: {fileID: 0}

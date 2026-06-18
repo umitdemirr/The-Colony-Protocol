@@ -100,8 +100,8 @@ public class Astronaut : MonoBehaviour
         if (_initialized) return;
         _initialized = true;
 
-        _mover = GetComponent<NpcMoverAStar2D>();
-        _animator = GetComponent<NPCAnimator4Dir>();
+        _mover = GetComponent<NpcMoverAStar2D>() ?? GetComponentInChildren<NpcMoverAStar2D>() ?? GetComponentInParent<NpcMoverAStar2D>();
+        _animator = GetComponent<NPCAnimator4Dir>() ?? GetComponentInChildren<NPCAnimator4Dir>() ?? GetComponentInParent<NPCAnimator4Dir>();
 
         if (string.IsNullOrEmpty(astronautName))
         {
@@ -109,6 +109,38 @@ public class Astronaut : MonoBehaviour
         }
 
         CreateWorldUI();
+    }
+
+    public void ResetStateForLoad()
+    {
+        _initialized = false;
+        
+        // Sahnede var olan eski UI kopyalanmış olabilir, onu bulup temizleyelim
+        for (int i = transform.childCount - 1; i >= 0; i--)
+        {
+            var child = transform.GetChild(i);
+            if (child.name == "NpcWorldUI")
+            {
+                if (Application.isPlaying)
+                {
+                    Destroy(child.gameObject);
+                }
+                else
+                {
+                    DestroyImmediate(child.gameObject);
+                }
+            }
+        }
+        
+        InitializeIfNeeded();
+        
+        if (_mover != null)
+        {
+            _mover.StopMovement();
+        }
+        
+        _idleTimer = 0f;
+        currentTask = null;
     }
 
     void OnDestroy()
@@ -119,26 +151,13 @@ public class Astronaut : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Rolüne göre astronotun sprite rengini hafifçe tintler (renklendirir).
-    /// </summary>
-    private void ApplySuitTint()
+    public void ApplySuitTint()
     {
+        // Renk filtresi kaldırıldı. Astronotlar kendi prefablarındaki orijinal görselleriyle görüntülenecek.
         var sr = GetComponentInChildren<SpriteRenderer>();
         if (sr != null)
         {
-            switch (role)
-            {
-                case NpcRole.Biologist:
-                    sr.color = new Color(0.6f, 1f, 0.6f); // Yeşil
-                    break;
-                case NpcRole.Engineer:
-                    sr.color = new Color(0.6f, 0.8f, 1f); // Mavi
-                    break;
-                case NpcRole.Worker:
-                    sr.color = new Color(1f, 0.8f, 0.5f); // Sarı/Turuncu
-                    break;
-            }
+            sr.color = Color.white;
         }
     }
 
@@ -524,13 +543,72 @@ public class Astronaut : MonoBehaviour
         PlacedBuilding targetBuilding = FindBestIdleBuilding(placedBuildings);
         if (targetBuilding != null)
         {
+            if (_mover == null) return;
+            if (_mover.tilemap == null && PathfindingAStar2D.Instance != null)
+            {
+                _mover.tilemap = PathfindingAStar2D.Instance.tilemap;
+            }
+            if (_mover.tilemap == null) return;
+
             Vector3Int startCell = _mover.tilemap.WorldToCell(transform.position);
             Vector3Int targetCenterCell = _mover.tilemap.WorldToCell(targetBuilding.transform.position);
             
-            // Binanın kendisi veya en yakın yürünebilir hücresini bul
-            Vector3Int targetCell = PathfindingAStar2D.Instance != null 
-                ? PathfindingAStar2D.Instance.FindNearestWalkableCell(targetCenterCell, startCell, maxRadius: 10)
-                : targetCenterCell;
+            // Binanın etrafındaki ve içindeki yürünebilir alternatif hücreleri toplayalım
+            List<Vector3Int> walkableAlternatives = new List<Vector3Int>();
+            
+            // Binaların işgal ettiği tüm hücreleri (footprint) toplayalım
+            HashSet<Vector3Int> occupiedCells = new HashSet<Vector3Int>();
+            GridOccupier2D occ = targetBuilding.GetComponentInChildren<GridOccupier2D>(true);
+            var gridManager = PathfindingAStar2D.Instance != null ? PathfindingAStar2D.Instance.gridManager : null;
+            
+            if (occ != null && gridManager != null)
+            {
+                occupiedCells = occ.ComputeOccupiedCells(gridManager);
+            }
+            
+            if (occupiedCells.Count == 0)
+            {
+                occupiedCells.Add(targetCenterCell);
+            }
+            
+            // Hem footprint hücrelerini hem de onların 1-hücre komşularını aday havuzuna ekleyelim
+            HashSet<Vector3Int> candidates = new HashSet<Vector3Int>(occupiedCells);
+            foreach (var cell in occupiedCells)
+            {
+                candidates.Add(cell + Vector3Int.up);
+                candidates.Add(cell + Vector3Int.down);
+                candidates.Add(cell + Vector3Int.left);
+                candidates.Add(cell + Vector3Int.right);
+                candidates.Add(cell + new Vector3Int(1, 1, 0));
+                candidates.Add(cell + new Vector3Int(1, -1, 0));
+                candidates.Add(cell + new Vector3Int(-1, 1, 0));
+                candidates.Add(cell + new Vector3Int(-1, -1, 0));
+            }
+            
+            // Adaylardan sadece yürünebilir ve işgal edilmemiş olanları seçelim
+            if (gridManager != null)
+            {
+                foreach (var cell in candidates)
+                {
+                    GridNode node = gridManager.GetNode(cell);
+                    if (node != null && node.isWalkable && !node.isOccupied)
+                    {
+                        walkableAlternatives.Add(cell);
+                    }
+                }
+            }
+            
+            Vector3Int targetCell = targetCenterCell;
+            if (walkableAlternatives.Count > 0)
+            {
+                // Adaylardan rastgele birini seçerek hareketliliği ve canlılığı sağlayalım
+                targetCell = walkableAlternatives[Random.Range(0, walkableAlternatives.Count)];
+            }
+            else if (PathfindingAStar2D.Instance != null)
+            {
+                // Hiç aday bulunamazsa en yakın yürünebilir hücreye fallback yapalım
+                targetCell = PathfindingAStar2D.Instance.FindNearestWalkableCell(targetCenterCell, startCell, maxRadius: 10);
+            }
 
             if (targetCell != startCell)
             {
@@ -544,14 +622,14 @@ public class Astronaut : MonoBehaviour
     {
         if (placedBuildings == null || placedBuildings.Length == 0) return null;
 
-        PlacedBuilding bestBuilding = null;
-        float bestScore = float.MinValue;
-
         // İhtiyaçları kontrol et
         bool needsO2 = oxygen < 45f;
         bool needsFood = food < 40f;
         bool needsWater = water < 40f;
         bool needsMedic = health < 50f;
+
+        List<System.Tuple<PlacedBuilding, float>> scoredBuildings = new List<System.Tuple<PlacedBuilding, float>>();
+        float bestScore = float.MinValue;
 
         foreach (var pb in placedBuildings)
         {
@@ -601,14 +679,32 @@ public class Astronaut : MonoBehaviour
             // Küçük bir rastgelelik ekle (çeşitlilik olsun)
             score += Random.Range(-10f, 10f);
 
+            scoredBuildings.Add(new System.Tuple<PlacedBuilding, float>(pb, score));
             if (score > bestScore)
             {
                 bestScore = score;
-                bestBuilding = pb;
             }
         }
 
-        return bestBuilding;
+        if (scoredBuildings.Count == 0) return null;
+
+        // En iyi skora yakın olan aday binaları toplayalım (örneğin en iyi skordan en fazla 50 puan düşük olanlar)
+        List<PlacedBuilding> candidates = new List<PlacedBuilding>();
+        float threshold = bestScore - 50f;
+        foreach (var tuple in scoredBuildings)
+        {
+            if (tuple.Item2 >= threshold)
+            {
+                candidates.Add(tuple.Item1);
+            }
+        }
+
+        if (candidates.Count > 0)
+        {
+            return candidates[Random.Range(0, candidates.Count)];
+        }
+
+        return null;
     }
 }
 
