@@ -63,6 +63,12 @@ public class PlacedBuilding : MonoBehaviour
     [Min(0f)] public float oxygenProductionCurrent = 0f;
     [Min(0f)] public float oxygenProductionCapacity = 0f;
     public int oxygenSupportCapacity = 0;
+    /// <summary>
+    /// Saniyede ne kadar oksijen ekleneceğini/azaltılacağını tutar.
+    /// BuildingSimulationSystem her tick'te hesaplayıp yazar;
+    /// Update() bu değeri kullanarak oksijeni sürekli (smooth) günceller.
+    /// </summary>
+    [HideInInspector] public float oxygenChangeRate = 0f;
 
     [Header("Su Şebekesi")]
     public bool isWaterProducer = false;
@@ -90,6 +96,15 @@ public class PlacedBuilding : MonoBehaviour
         {
             if (maxHealth <= 0) return 0f;
             return Mathf.Clamp01((float)currentHealth / maxHealth);
+        }
+    }
+
+    void Update()
+    {
+        // Oksijen miktarını her frame sürekli (smooth) güncelle
+        if (storesOxygen && !isExterior && oxygenChangeRate != 0f)
+        {
+            oxygenAmount = Mathf.Clamp(oxygenAmount + oxygenChangeRate * Time.deltaTime, 0f, oxygenCapacity);
         }
     }
 }
