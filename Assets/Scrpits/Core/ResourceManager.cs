@@ -31,12 +31,19 @@ public class ResourceManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(this); // Sadece bileşeni sil, paylaşılan GameObject'i silme!
-            return;
+            Debug.LogWarning($"[ResourceManager] Sahnede birden fazla Instance bulundu! Eski olan eziliyor.");
         }
         Instance = this;
 
         InitializeStartResources();
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
     }
 
     void InitializeStartResources()
@@ -47,6 +54,7 @@ public class ResourceManager : MonoBehaviour
         _inventory.Set(ResourceType.Meal, startMeal);
         _inventory.Set(ResourceType.MedicalSupplies, startMedicalSupplies);
         _inventory.Set(ResourceType.Energy, startEnergy);
+        Debug.Log($"[ResourceManager] InitializeStartResources called. Metal={startMetal}, Biyoplastik={startBiyoplastik}, Spares={startSpares}, Meal={startMeal}, MedicalSupplies={startMedicalSupplies}");
     }
 
     public int Get(ResourceType type) => _inventory.Get(type);

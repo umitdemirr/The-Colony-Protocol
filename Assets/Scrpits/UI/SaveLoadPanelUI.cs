@@ -227,27 +227,18 @@ public class SaveLoadPanelUI : MonoBehaviour
             return;
         }
 
-        string activeScene = SceneManager.GetActiveScene().name;
+        // Oyunu her yüklediğimizde sahneleri temiz ve sıfırdan başlatmak için
+        // her zaman sahneyi yeniden yüklüyoruz. Bu sayede nesneler ve kaynaklar
+        // düzgünce sıfırlanıp kayıt dosyasındaki değerler temiz bir şekilde sahneye uygulanır.
+        SaveManager.Instance.PendingLoadFileName = _pendingLoadFileName;
 
-        // Eğer oyundayken yüklersek doğrudan Load, ana menüdeysek sahneyi açıp Load.
-        if (activeScene == "StartScene")
+        if (LoadingScreenManager.Instance != null)
         {
-            SaveManager.Instance.PendingLoadFileName = _pendingLoadFileName;
-
-            if (LoadingScreenManager.Instance != null)
-            {
-                LoadingScreenManager.Instance.LoadSceneAsync(gameplaySceneName);
-            }
-            else
-            {
-                SceneManager.LoadScene(gameplaySceneName);
-            }
+            LoadingScreenManager.Instance.LoadSceneAsync(gameplaySceneName);
         }
         else
         {
-            SaveManager.Instance.Load(_pendingLoadFileName);
-            // Kapat
-            gameObject.SetActive(false);
+            SceneManager.LoadScene(gameplaySceneName);
         }
     }
 

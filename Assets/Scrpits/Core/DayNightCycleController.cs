@@ -58,10 +58,17 @@ public class DayNightCycleController : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(this); // Sadece bileşeni sil, paylaşılan GameObject'i silme!
-            return;
+            Debug.LogWarning($"[DayNightCycleController] Sahnede birden fazla Instance bulundu! Eski olan eziliyor.");
         }
         Instance = this;
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
     }
 
     void Start()

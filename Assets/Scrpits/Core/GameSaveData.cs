@@ -80,7 +80,19 @@ public class EnergySystemSaveData
 public class NpcSaveData
 {
     public string id;
-    public float posX, posY;
+    public float posX;
+    public float posY;
     public string astronautName;
     public int role;
+    public string prefabName;
+
+    // Astronot istatistikleri ve durumları
+    public float health;
+    public float oxygen;
+    public float food;
+    public float water;
+    public float happiness;
+    public int state;
+    public int carryingResource;
+    public bool isCarrying;
 }

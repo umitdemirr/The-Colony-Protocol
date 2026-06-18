@@ -76,10 +76,17 @@ public class EnergyProductionSystem : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(this); // Sadece bileşeni sil, paylaşılan GameObject'i silme!
-            return;
+            Debug.LogWarning($"[EnergyProductionSystem] Sahnede birden fazla Instance bulundu! Eski olan eziliyor.");
         }
         Instance = this;
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
     }
 
     void Start()
@@ -96,6 +103,7 @@ public class EnergyProductionSystem : MonoBehaviour
 
     void Update()
     {
+        if (resourceManager == null) resourceManager = ResourceManager.Instance;
         if (resourceManager == null || resourceManager.Inventory == null) return;
 
         if (buildingTracker == null) buildingTracker = BuildingPlacementTracker.Instance;

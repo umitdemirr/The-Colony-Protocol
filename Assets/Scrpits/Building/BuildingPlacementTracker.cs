@@ -24,10 +24,17 @@ public class BuildingPlacementTracker : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(this); // Sadece bileşeni sil, GameObject'i silme!
-            return;
+            Debug.LogWarning($"[BuildingPlacementTracker] Sahnede birden fazla Instance bulundu! Eski olan eziliyor.");
         }
         Instance = this;
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
     }
 
     void Start()

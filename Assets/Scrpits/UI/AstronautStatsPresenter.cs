@@ -47,7 +47,9 @@ public class AstronautStatsPresenter : MonoBehaviour, IInfoCardContextReceiver
 
     public void SetContextTarget(GameObject contextTarget)
     {
-        _astronaut = contextTarget != null ? contextTarget.GetComponent<Astronaut>() : null;
+        _astronaut = contextTarget != null 
+            ? (contextTarget.GetComponent<Astronaut>() ?? contextTarget.GetComponentInChildren<Astronaut>() ?? contextTarget.GetComponentInParent<Astronaut>()) 
+            : null;
         RefreshUI();
     }
 

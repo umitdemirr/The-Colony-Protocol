@@ -46,8 +46,7 @@ public class ConstructionManager : MonoBehaviour
         _isShuttingDown = false;
         if (_instance != null && _instance != this)
         {
-            Destroy(gameObject);
-            return;
+            Debug.LogWarning($"[ConstructionManager] Sahnede birden fazla Instance bulundu! Eski olan eziliyor.");
         }
         _instance = this;
 
@@ -79,12 +78,12 @@ public class ConstructionManager : MonoBehaviour
         var movers = FindObjectsByType<NpcMoverAStar2D>(FindObjectsSortMode.None);
         foreach (var mover in movers)
         {
-            var ast = mover.GetComponent<Astronaut>();
+            var ast = mover.GetComponent<Astronaut>() ?? mover.GetComponentInChildren<Astronaut>() ?? mover.GetComponentInParent<Astronaut>();
             if (ast == null)
             {
                 ast = mover.gameObject.AddComponent<Astronaut>();
                 // Sahnede var olanlara rastgele isim ve rol tanımlayalım
-                ast.role = (NpcRole)Random.Range(0, 3);
+                ast.role = (NpcRole)Random.Range(0, 4);
             }
         }
     }
@@ -136,11 +135,11 @@ public class ConstructionManager : MonoBehaviour
         {
             if (mover != null)
             {
-                var ast = mover.GetComponent<Astronaut>();
+                var ast = mover.GetComponent<Astronaut>() ?? mover.GetComponentInChildren<Astronaut>() ?? mover.GetComponentInParent<Astronaut>();
                 if (ast == null)
                 {
                     ast = mover.gameObject.AddComponent<Astronaut>();
-                    ast.role = (NpcRole)Random.Range(0, 3);
+                    ast.role = (NpcRole)Random.Range(0, 4);
                 }
                 else
                 {
